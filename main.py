@@ -21,7 +21,7 @@ from telegram.ext import (
 # Questions file
 from cs_questions import CS_EXIT_EXAM_2018
 
-# 1. Render እንዳይተኛ HTTP Web Server (Port 8080)
+# 1. Render እንዳይተኛ HTTP Web Server
 app_flask = Flask(__name__)
 
 @app_flask.route('/')
@@ -72,7 +72,7 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         index = context.user_data.get('current_index', 0)
         chat_id = update.effective_chat.id
 
-        # 1. Check Free Limit
+        # 1. Free limit check
         if index >= FREE_QUESTIONS_LIMIT and not context.user_data.get('is_paid', False):
             payment_text = (
                 f'🔒 **የነጻ ልምምድ ገደብ አልቋል!**\n\n'
@@ -87,13 +87,13 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=chat_id, text=payment_text, parse_mode='Markdown')
             return
 
-        # 2. Check Exam End
+        # 2. End of quiz check
         if index >= len(CS_EXIT_EXAM_2018):
             text = '🎉 **እንኳን ደስ አለዎት! ሁሉንም ጥያቄዎች ጨርሰዋል።**'
             await context.bot.send_message(chat_id=chat_id, text=text, parse_mode='Markdown')
             return
 
-        # 3. Send Question
+        # 3. Question formatting
         q = CS_EXIT_EXAM_2018[index]
         letters = ['A', 'B', 'C', 'D', 'E', 'F']
 
@@ -101,7 +101,8 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for opt_idx, option in enumerate(q['options']):
             letter_prefix = letters[opt_idx] if opt_idx < len(letters) else f'{opt_idx+1}'
             button_label = f'{letter_prefix}. {option}'
-            keyboard.append([InlineKeyboardButton(button_label, callback_data=f'ans|{opt_idx}')])
+            # callback_data contains question index and selected option index
+            keyboard.append([InlineKeyboardButton(button_label, callback_data=f'ans|{index}|{opt_idx}')])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
         question_text = f"**ጥያቄ {q['id']} / {len(CS_EXIT_EXAM_2018)}**\n\n{q['question']}"
@@ -113,20 +114,21 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
             parse_mode='Markdown'
         )
     except Exception as e:
-        print(f'Error occurred in send_question: {e}')
+        logging.error(f'Error in send_question: {e}')
 
 async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    opt_idx = int(query.data.split('|')[1])
-    index = context.user_data.get('current_index', 0)
+    # Parse callback_data: ans|q_index|opt_idx
+    parts = query.data.split('|')
+    q_index = int(parts[1])
+    opt_idx = int(parts[2])
 
-    if index >= len(CS_EXIT_EXAM_2018):
-        index = 0
-        context.user_data['current_index'] = 0
+    if q_index >= len(CS_EXIT_EXAM_2018):
+        return
 
-    q = CS_EXIT_EXAM_2018[index]
+    q = CS_EXIT_EXAM_2018[q_index]
     letters = ['A', 'B', 'C', 'D', 'E', 'F']
     letter_prefix = letters[opt_idx] if opt_idx < len(letters) else f'{opt_idx+1}'
 
@@ -147,8 +149,10 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
             f"💡 **ማብራሪያ፦** {q['explanation']}"
         )
 
+    # Next question callback carries the NEXT question index directly
+    next_q_index = q_index + 1
     next_keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton('ቀጣይ ጥያቄ ➡️', callback_data='next_q')]]
+        [[InlineKeyboardButton('ቀጣይ ጥያቄ ➡️', callback_data=f'next|{next_q_index}')]]
     )
 
     await query.edit_message_text(text=result_text, reply_markup=next_keyboard, parse_mode='Markdown')
@@ -157,8 +161,11 @@ async def next_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    current_index = context.user_data.get('current_index', 0)
-    context.user_data['current_index'] = current_index + 1
+    parts = query.data.split('|')
+    next_q_index = int(parts[1])
+
+    # Update index in user context
+    context.user_data['current_index'] = next_q_index
     await send_question(update, context)
 
 async def handle_text_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -218,7 +225,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('quiz', start_quiz))
     app.add_handler(CommandHandler('approve', approve_user))
     app.add_handler(CallbackQueryHandler(handle_answer, pattern='^ans\|'))
-    app.add_handler(CallbackQueryHandler(next_question, pattern='^next_q\$'))
+    app.add_handler(CallbackQueryHandler(next_question, pattern='^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
 
     print('ቦቱ ሥራ ጀምሯል...')
