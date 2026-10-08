@@ -1,41 +1,53 @@
 import os
+import logging
 import threading
 from flask import Flask
-from telegram.ext import ApplicationBuilder, CommandHandler, CallbackQueryHandler
+from telegram import Update
+from telegram.ext import (
+    ApplicationBuilder,
+    CommandHandler,
+    CallbackQueryHandler,
+    ContextTypes
+)
 
-# Render እንዳይተኛ HTTP Web Server ማዘጋጀት
+# 1. Render እንዳይተኛ የሚያደርግ Flask Web Server
 app = Flask(__name__)
 
 @app.route('/')
 def home():
-    return "Bot is alive!", 200
+    return "Bot is alive and running!", 200
 
 def run_flask():
-    # Render የሚሰጠውን PORT ወይም በደባብ 8080 መጠቀም
     port = int(os.environ.get("PORT", 8080))
     app.run(host="0.0.0.0", port=port)
 
-# --- የቦትህ ዋና ስራ ---
+# 2. የቴሌግራም ቦት ተግባራት (Handlers)
+async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("ሰላም! ወደ Quiz Bot እንኳን ደህና መጡ። /quiz ብለው ይጀምሩ።")
+
+async def quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    await update.message.reply_text("የፈተና ጥያቄዎች እዚህ ይጀምራሉ...")
+
+# 3. ዋናው ማስነሻ function
 def main():
-    # Flask Web Serverን ከጀርባ ማስነሳት
+    # Flask Web Server ከጀርባ እንዲሰራ ማድረግ
     threading.Thread(target=run_flask, daemon=True).start()
 
-    # Bot Token ከ Render Environment ወይም ከጽሁፉ መውሰድ
     TOKEN = os.environ.get("BOT_TOKEN")
-    
     if not TOKEN:
-        # BOT_TOKEN በ Environment ካልተዋቀረ የራስህን Token እዚህ አድርገው
-        TOKEN = "YOUR_TELEGRAM_BOT_TOKEN_HERE" 
+        # BOT_TOKEN በ Render ላይ ካልተዋቀረ የራስህን Token እዚህ ጋር አድርገው
+        TOKEN = "YOUR_BOT_TOKEN_HERE"
 
     application = ApplicationBuilder().token(TOKEN).build()
-    
-    # -------------------------------------------------------------
-    # ማስታወሻ፦ የነበሩህን Handlers (Quiz, Commands) ከዚህ በታች አክላቸው
-    # -------------------------------------------------------------
-    
+
+    # Handlers መጨመር
+    application.add_handler(CommandHandler("start", start))
+    application.add_handler(CommandHandler("quiz", quiz))
+
+    # የነበሩህን ተጨማሪ Handlers እና Quiz Logic እዚህ ማከል ትችላለህ
+
     print("ቦቱ ሥራ ጀምሯል...")
     application.run_polling()
 
 if __name__ == '__main__':
     main()
- 
