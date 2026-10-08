@@ -21,9 +21,7 @@ from telegram.ext import (
 # Questions file
 from cs_questions import CS_EXIT_EXAM_2018
 
-# -------------------------------------------------------------
-# 1. Render እንዳይተኛ HTTP Web Server ማዘጋጀት (Port 8080)
-# -------------------------------------------------------------
+# 1. Render እንዳይተኛ HTTP Web Server (Port 8080)
 app_flask = Flask(__name__)
 
 @app_flask.route('/')
@@ -34,9 +32,7 @@ def run_flask():
     port = int(os.environ.get("PORT", 8080))
     app_flask.run(host="0.0.0.0", port=port)
 
-# -------------------------------------------------------------
 # 2. Logging & Configurations
-# -------------------------------------------------------------
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
@@ -54,9 +50,7 @@ MAIN_KEYBOARD = ReplyKeyboardMarkup(
     resize_keyboard=True,
 )
 
-# -------------------------------------------------------------
 # 3. Handlers
-# -------------------------------------------------------------
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_name = update.effective_user.first_name
     welcome_text = (
@@ -76,7 +70,9 @@ async def start_quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
     try:
         index = context.user_data.get('current_index', 0)
+        chat_id = update.effective_chat.id
 
+        # 1. Check Free Limit
         if index >= FREE_QUESTIONS_LIMIT and not context.user_data.get('is_paid', False):
             payment_text = (
                 f'🔒 **የነጻ ልምምድ ገደብ አልቋል!**\n\n'
@@ -88,20 +84,16 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 f'የከፈሉበትን ደረሰኝ (Screenshot) ለ Admin ይላኩ፦ {ADMIN_USERNAME}\n\n'
                 f'ክፍያዎ እንደተረጋገጠ ቦቱ ይከፈትልዎታል።'
             )
-            if update.callback_query:
-                await update.callback_query.message.reply_text(payment_text, parse_mode='Markdown')
-            else:
-                await update.message.reply_text(payment_text, parse_mode='Markdown')
+            await context.bot.send_message(chat_id=chat_id, text=payment_text, parse_mode='Markdown')
             return
 
+        # 2. Check Exam End
         if index >= len(CS_EXIT_EXAM_2018):
             text = '🎉 **እንኳን ደስ አለዎት! ሁሉንም ጥያቄዎች ጨርሰዋል።**'
-            if update.callback_query:
-                await update.callback_query.message.reply_text(text, parse_mode='Markdown')
-            else:
-                await update.message.reply_text(text, parse_mode='Markdown')
+            await context.bot.send_message(chat_id=chat_id, text=text, parse_mode='Markdown')
             return
 
+        # 3. Send Question
         q = CS_EXIT_EXAM_2018[index]
         letters = ['A', 'B', 'C', 'D', 'E', 'F']
 
@@ -114,14 +106,14 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         reply_markup = InlineKeyboardMarkup(keyboard)
         question_text = f"**ጥያቄ {q['id']} / {len(CS_EXIT_EXAM_2018)}**\n\n{q['question']}"
 
-        if update.callback_query:
-            await update.callback_query.message.reply_text(question_text, reply_markup=reply_markup, parse_mode='Markdown')
-        else:
-            await update.message.reply_text(question_text, reply_markup=reply_markup, parse_mode='Markdown')
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=question_text,
+            reply_markup=reply_markup,
+            parse_mode='Markdown'
+        )
     except Exception as e:
-        print(f'Error occurred: {e}')
-        if update.message:
-            await update.message.reply_text(f'ስህተት ተፈጠረ፦ {e}')
+        print(f'Error occurred in send_question: {e}')
 
 async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
@@ -214,14 +206,10 @@ async def approve_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     except Exception as e:
         await update.message.reply_text(f'ስህተት ተፈጠረ፦ {e}')
 
-# -------------------------------------------------------------
 # 4. Main Execution
-# -------------------------------------------------------------
 if __name__ == '__main__':
-    # Render Port ሰምቶ እንዳይዘጋ Flaskን ከጀርባ ማስነሳት
     threading.Thread(target=run_flask, daemon=True).start()
 
-    # BOT_TOKEN ከ Render Environment መውሰድ፤ ካልተገኘ ደግሞ የነበረውን መጠቀም
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "8809032194:AAGpO0DPvCW87RMj-BulJempz8dEMwciJxE")
 
     app = ApplicationBuilder().token(BOT_TOKEN).build()
