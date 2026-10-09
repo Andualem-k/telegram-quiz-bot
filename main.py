@@ -82,14 +82,14 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     
     user_name = update.effective_user.first_name
     welcome_text = (
-        f'Welcome {user_name}! 👋\n\n'
-        f'Welcome to the **Ethiopian University Exit Exam Practice Bot**.\n\n'
-        f'📚 **Available Departments:**\n'
-        f'1. 💻 **Computer Science (CS)**\n'
-        f'2. 🌐 **Information Technology (IT)**\n'
-        f me3. 📊 **Marketing Management**\n\n'
-        f'📌 You can practice the first {FREE_QUESTIONS_LIMIT} questions for FREE in each department!\n'
-        f'Choose your department below to begin.'
+        f"Welcome {user_name}! 👋\n\n"
+        f"Welcome to the **Ethiopian University Exit Exam Practice Bot**.\n\n"
+        f"📚 **Available Departments:**\n"
+        f"1. 💻 **Computer Science (CS)**\n"
+        f"2. 🌐 **Information Technology (IT)**\n"
+        f"3. 📊 **Marketing Management**\n\n"
+        f"📌 You can practice the first {FREE_QUESTIONS_LIMIT} questions for FREE in each department!\n"
+        f"Choose your department below to begin."
     )
     await update.message.reply_text(
         welcome_text, reply_markup=MAIN_KEYBOARD, parse_mode='Markdown'
