@@ -18,8 +18,10 @@ from telegram.ext import (
     filters,
 )
 
-# Questions and Database modules
+# ጥያቄዎችን እና Database መጫን
 from cs_questions import CS_EXIT_EXAM_2018
+from mgmt_questions import MARKETING_MGMT_EXIT_EXAM
+from it_questions import IT_EXIT_EXAM
 from database import (
     init_db,
     add_paid_user,
@@ -30,10 +32,10 @@ from database import (
     get_total_users_count,
 )
 
-# Initialize Database on Start
+# Database ማስመርመር
 init_db()
 
-# 1. Render Keep-Alive HTTP Web Server
+# 1. Render Web Service እንዲሰራ Flask መክፈት
 app_flask = Flask(__name__)
 
 @app_flask.route('/')
@@ -44,7 +46,7 @@ def run_flask():
     port = int(os.environ.get("PORT", 8080))
     app_flask.run(host="0.0.0.0", port=port)
 
-# 2. Logging & Configurations
+# 2. Logging ማስተካከል
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
@@ -56,32 +58,62 @@ ADMIN_USERNAME = '@anmg2828kt'
 
 MAIN_KEYBOARD = ReplyKeyboardMarkup(
     [
-        [KeyboardButton('🚀 Start'), KeyboardButton('🎯 Start Quiz')],
+        [KeyboardButton('💻 CS Exam'), KeyboardButton('🌐 IT Exam')],
+        [KeyboardButton('📊 Marketing Mgmt')],
         [KeyboardButton('💳 Payment / Upgrade'), KeyboardButton('ℹ️ Help / Admin')],
         [KeyboardButton('🆔 My User ID')],
     ],
     resize_keyboard=True,
 )
 
+# የተመረጠውን ዲፓርትመንት ጥያቄዎች ማቅረብ
+def get_questions_for_user(context: ContextTypes.DEFAULT_TYPE):
+    dept = context.user_data.get('department', 'cs')
+    if dept == 'mgmt':
+        return MARKETING_MGMT_EXIT_EXAM
+    elif dept == 'it':
+        return IT_EXIT_EXAM
+    return CS_EXIT_EXAM_2018
+
 # 3. Handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
-    add_all_user(user_id)  # Track user for broadcasting
+    add_all_user(user_id)
     
     user_name = update.effective_user.first_name
     welcome_text = (
         f'Welcome {user_name}! 👋\n\n'
-        f'Welcome to the **Computer Science Exit Exam Practice Bot**.\n\n'
-        f'📌 You can practice the first {FREE_QUESTIONS_LIMIT} questions for FREE!\n'
-        f'Use the buttons below to navigate and begin.'
+        f'Welcome to the **Ethiopian University Exit Exam Practice Bot**.\n\n'
+        f'📚 **Available Departments:**\n'
+        f'1. 💻 **Computer Science (CS)**\n'
+        f'2. 🌐 **Information Technology (IT)**\n'
+        f me3. 📊 **Marketing Management**\n\n'
+        f'📌 You can practice the first {FREE_QUESTIONS_LIMIT} questions for FREE in each department!\n'
+        f'Choose your department below to begin.'
     )
     await update.message.reply_text(
         welcome_text, reply_markup=MAIN_KEYBOARD, parse_mode='Markdown'
     )
 
-async def start_quiz(update: Update, context: ContextTypes.DEFAULT_TYPE):
+async def start_quiz_cs(update: Update, context: ContextTypes.DEFAULT_TYPE):
     add_all_user(update.effective_user.id)
+    context.user_data['department'] = 'cs'
     context.user_data['current_index'] = 0
+    await update.message.reply_text("💻 Starting **Computer Science** Exit Exam Quiz...", parse_mode='Markdown')
+    await send_question(update, context)
+
+async def start_quiz_it(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    add_all_user(update.effective_user.id)
+    context.user_data['department'] = 'it'
+    context.user_data['current_index'] = 0
+    await update.message.reply_text("🌐 Starting **Information Technology (IT)** Exit Exam Quiz...", parse_mode='Markdown')
+    await send_question(update, context)
+
+async def start_quiz_mgmt(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    add_all_user(update.effective_user.id)
+    context.user_data['department'] = 'mgmt'
+    context.user_data['current_index'] = 0
+    await update.message.reply_text("📊 Starting **Marketing Management** Exit Exam Quiz...", parse_mode='Markdown')
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -90,12 +122,13 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         chat_id = update.effective_chat.id
 
         user_has_paid = is_user_paid(chat_id)
+        questions_list = get_questions_for_user(context)
 
         if index >= FREE_QUESTIONS_LIMIT and not user_has_paid:
             payment_text = (
                 f'🔒 **Free Trial Limit Reached!**\n\n'
                 f'You have completed your free trial of {FREE_QUESTIONS_LIMIT} questions.\n'
-                f'To unlock all questions, please pay **100 ETB**.\n\n'
+                f'To unlock all questions across all departments, please pay **100 ETB**.\n\n'
                 f'💳 **Payment Options:**\n'
                 f'• **Telebirr / CBE:** `0934234392`\n'
                 f'• **Account Name:** Kebede Assefa\n\n'
@@ -106,12 +139,12 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=chat_id, text=payment_text, parse_mode='Markdown')
             return
 
-        if index >= len(CS_EXIT_EXAM_2018):
-            text = '🎉 **Congratulations! You have completed all questions.**'
+        if index >= len(questions_list):
+            text = '🎉 **Congratulations! You have completed all questions in this department.**'
             await context.bot.send_message(chat_id=chat_id, text=text, parse_mode='Markdown')
             return
 
-        q = CS_EXIT_EXAM_2018[index]
+        q = questions_list[index]
         letters = ['A', 'B', 'C', 'D', 'E', 'F']
 
         keyboard = []
@@ -121,7 +154,11 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
             keyboard.append([InlineKeyboardButton(button_label, callback_data=f'ans|{index}|{opt_idx}')])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
-        question_text = f"**Question {q['id']} / {len(CS_EXIT_EXAM_2018)}**\n\n{q['question']}"
+        
+        dept_code = context.user_data.get('department')
+        dept_title = "Information Technology" if dept_code == 'it' else ("Marketing Management" if dept_code == 'mgmt' else "Computer Science")
+        
+        question_text = f"📚 **{dept_title}**\n**Question {q['id']} / {len(questions_list)}**\n\n{q['question']}"
 
         await context.bot.send_message(
             chat_id=chat_id,
@@ -140,10 +177,12 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     q_index = int(parts[1])
     opt_idx = int(parts[2])
 
-    if q_index >= len(CS_EXIT_EXAM_2018):
+    questions_list = get_questions_for_user(context)
+
+    if q_index >= len(questions_list):
         return
 
-    q = CS_EXIT_EXAM_2018[q_index]
+    q = questions_list[q_index]
     letters = ['A', 'B', 'C', 'D', 'E', 'F']
     letter_prefix = letters[opt_idx] if opt_idx < len(letters) else f'{opt_idx+1}'
 
@@ -188,8 +227,12 @@ async def handle_text_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
 
     if text in ['🚀 Start', '⚡ Main Menu']:
         await start(update, context)
-    elif text in ['🎯 Start Quiz', '🎯 Quiz Start']:
-        await start_quiz(update, context)
+    elif text in ['💻 CS Exam', '💻 Computer Science']:
+        await start_quiz_cs(update, context)
+    elif text in ['🌐 IT Exam', '🌐 Information Technology']:
+        await start_quiz_it(update, context)
+    elif text in ['📊 Marketing Mgmt', '📊 Marketing Management']:
+        await start_quiz_mgmt(update, context)
     elif text in ['💳 Payment / Upgrade', '💳 Kfya / Payment']:
         status = "✅ **Active Subscriber**" if is_user_paid(user_id) else "❌ **Free Trial User**"
         payment_info = (
@@ -230,7 +273,7 @@ async def approve_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         await context.bot.send_message(
             chat_id=user_id_to_approve,
-            text='🎉 **Payment Verified!**\n\nYou now have full access to all exit exam questions.',
+            text='🎉 **Payment Verified!**\n\nYou now have full access to all exit exam questions across all departments.',
             parse_mode='Markdown',
         )
     except Exception as e:
@@ -254,7 +297,6 @@ async def admin_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
     )
 
 async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    """ለአስተዳዳሪ ብቻ፡ ለሁሉም ተጠቃሚዎች መልእክት መላኪያ"""
     if update.effective_user.id != ADMIN_ID:
         await update.message.reply_text('❌ Unauthorized! Only Admin can use this command.')
         return
@@ -262,7 +304,7 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if not context.args:
         await update.message.reply_text(
             '⚠️ **Usage:** `/broadcast Your message here...`\n'
-            'Example: `/broadcast Hello students! New questions are added.`',
+            'Example: `/broadcast Hello students! New IT questions are added.`',
             parse_mode='Markdown'
         )
         return
@@ -302,7 +344,6 @@ if __name__ == '__main__':
     app = ApplicationBuilder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler('start', start))
-    app.add_handler(CommandHandler('quiz', start_quiz))
     app.add_handler(CommandHandler('approve', approve_user))
     app.add_handler(CommandHandler('stats', admin_stats))
     app.add_handler(CommandHandler('broadcast', broadcast))
@@ -310,5 +351,5 @@ if __name__ == '__main__':
     app.add_handler(CallbackQueryHandler(next_question, pattern='^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
 
-    print('Bot started successfully with Broadcast support...')
+    print('Bot started successfully with 3 Department support...')
     app.run_polling()
