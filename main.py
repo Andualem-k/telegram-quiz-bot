@@ -18,10 +18,14 @@ from telegram.ext import (
     filters,
 )
 
-# Questions file
+# Questions and Database modules
 from cs_questions import CS_EXIT_EXAM_2018
+from database import init_db, add_paid_user, is_user_paid, get_paid_users_count
 
-# 1. Render Keep-Alive HTTP Web Server (Port 8080)
+# Initialize Database on Start
+init_db()
+
+# 1. Render Keep-Alive HTTP Web Server
 app_flask = Flask(__name__)
 
 @app_flask.route('/')
@@ -73,12 +77,15 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         index = context.user_data.get('current_index', 0)
         chat_id = update.effective_chat.id
 
-        # 1. Free Limit Check
-        if index >= FREE_QUESTIONS_LIMIT and not context.user_data.get('is_paid', False):
+        # 1. Database Check for Paid Status
+        user_has_paid = is_user_paid(chat_id)
+
+        # 2. Free Limit Check
+        if index >= FREE_QUESTIONS_LIMIT and not user_has_paid:
             payment_text = (
                 f'🔒 **Free Trial Limit Reached!**\n\n'
                 f'You have completed your free trial of {FREE_QUESTIONS_LIMIT} questions.\n'
-                f'To unlock all 100 questions, please pay **100 ETB**.\n\n'
+                f'To unlock all questions, please pay **100 ETB**.\n\n'
                 f'💳 **Payment Options:**\n'
                 f'• **Telebirr / CBE:** `0934234392`\n'
                 f'• **Account Name:** Kebede Assefa\n\n'
@@ -89,13 +96,13 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
             await context.bot.send_message(chat_id=chat_id, text=payment_text, parse_mode='Markdown')
             return
 
-        # 2. End of Quiz Check
+        # 3. End of Quiz Check
         if index >= len(CS_EXIT_EXAM_2018):
             text = '🎉 **Congratulations! You have completed all questions.**'
             await context.bot.send_message(chat_id=chat_id, text=text, parse_mode='Markdown')
             return
 
-        # 3. Question Formatting
+        # 4. Question Formatting
         q = CS_EXIT_EXAM_2018[index]
         letters = ['A', 'B', 'C', 'D', 'E', 'F']
 
@@ -175,8 +182,10 @@ async def handle_text_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
     elif text in ['🎯 Start Quiz', '🎯 Quiz Start']:
         await start_quiz(update, context)
     elif text in ['💳 Payment / Upgrade', '💳 Kfya / Payment']:
+        status = "✅ **Active Subscriber**" if is_user_paid(user_id) else "❌ **Free Trial User**"
         payment_info = (
             f'💳 **Payment Information**\n\n'
+            f'• **Status:** {status}\n'
             f'• **Telebirr / CBE:** `0934234392`\n'
             f'• **Account Name:** Kebede Assefa\n'
             f'• **Fee:** 100 ETB\n\n'
@@ -204,11 +213,10 @@ async def approve_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         user_id_to_approve = int(context.args[0])
-        user_data = context.application.user_data.setdefault(user_id_to_approve, {})
-        user_data['is_paid'] = True
+        add_paid_user(user_id_to_approve)  # Save to Database
 
         await update.message.reply_text(
-            f'✅ User ID `{user_id_to_approve}` approved successfully!',
+            f'✅ User ID `{user_id_to_approve}` approved and saved to Database successfully!',
             parse_mode='Markdown',
         )
         await context.bot.send_message(
@@ -218,6 +226,18 @@ async def approve_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
     except Exception as e:
         await update.message.reply_text(f'Error occurred: {e}')
+
+async def admin_stats(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    if update.effective_user.id != ADMIN_ID:
+        return
+    paid_count = get_paid_users_count()
+    total_revenue = paid_count * 100
+    await update.message.reply_text(
+        f'📊 **Admin Statistics**\n\n'
+        f'• **Total Paid Users:** {paid_count}\n'
+        f'• **Total Revenue:** {total_revenue} ETB',
+        parse_mode='Markdown'
+    )
 
 # 4. Main Execution
 if __name__ == '__main__':
@@ -230,9 +250,10 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('quiz', start_quiz))
     app.add_handler(CommandHandler('approve', approve_user))
+    app.add_handler(CommandHandler('stats', admin_stats))
     app.add_handler(CallbackQueryHandler(handle_answer, pattern='^ans\|'))
     app.add_handler(CallbackQueryHandler(next_question, pattern='^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
 
-    print('Bot started successfully...')
+    print('Bot started successfully with Database integration...')
     app.run_polling()
