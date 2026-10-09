@@ -678,4 +678,591 @@ MARKETING_MGMT_EXIT_EXAM = [
             "None of the above"
         ],
         "correct_answer": "Political Influence",
-        "explanation": "Legal regulations
+        "explanation": "Legal regulations, antitrust policies, and government regulatory oversight fall under political/legal environmental influences."
+    },
+    {
+        "id": 56,
+        "question": "Working for the Queens supermarket chain, you are very aware of the activities of your company's competitors, Shoa and All-Mart, and find that you frequently make changes to your businesses in response to actions they have taken. You also notice that they react when you make changes to your business offering. This competition is occurring within the:",
+        "options": [
+            "Internal environment",
+            "The competitive-environment",
+            "The macro-environment",
+            "Micro-environment",
+            "None of the above"
+        ],
+        "correct_answer": "Micro-environment",
+        "explanation": "Competitors, suppliers, and buyers form the immediate industry micro-environment of a company."
+    },
+    {
+        "id": 57,
+        "question": "When the government of Ethiopia decided to devaluate the Ethiopian Birr, it is to make encouragement in exports and discourage imports. However, companies in the country could not produce much since they lack knowhow of effective production and operation of machineries with that the living expense is high. Within the macro-environment, which causes expensive living in the country:",
+        "options": [
+            "Political forces",
+            "Economic force",
+            "Sociocultural force",
+            "Technological force",
+            "Ecological"
+        ],
+        "correct_answer": "Economic force",
+        "explanation": "Currency devaluation, inflation, and living costs are key economic forces in the macro-environment."
+    },
+    {
+        "id": 58,
+        "question": "In term of a SWOT analysis, this would represent .",
+        "options": [
+            "Strength",
+            "Opportunity",
+            "Threat",
+            "Weakness",
+            "All of the above"
+        ],
+        "correct_answer": "Opportunity",
+        "explanation": "An external development (new neighboring housing estate) creating potential demand for a nursery business represents an Opportunity."
+    },
+    {
+        "id": 59,
+        "question": "The comprehensive understanding you are engaged in is known as:",
+        "options": [
+            "Marketing Planning",
+            "Situational Analysis",
+            "The Competitive Analysis",
+            "Company Analysis",
+            "None of the above"
+        ],
+        "correct_answer": "Situational Analysis",
+        "explanation": "Evaluating internal capacities and external industry trends is known as Situational Analysis."
+    },
+    {
+        "id": 60,
+        "question": "Banks, credit companies, insurance companies, and other businesses that help finance transactions or insure against the risks associated with the buying and selling of goods and services are referred to as .",
+        "options": [
+            "Financial Public",
+            "Marketing Service Agencies",
+            "Physical Distribution Firms",
+            "Microenvironment",
+            "Financial Intermediaries"
+        ],
+        "correct_answer": "Financial Intermediaries",
+        "explanation": "Financial intermediaries provide financing, credit, and risk management insurance for commercial transactions."
+    },
+    {
+        "id": 61,
+        "question": "Which intermediaries does the company outsource the service for?",
+        "options": [
+            "Retailers",
+            "Physical Distribution Firms",
+            "Marketing Service Agencies",
+            "Government Public",
+            "Wholesalers"
+        ],
+        "correct_answer": "Physical Distribution Firms",
+        "explanation": "Physical distribution firms help companies transport and move goods from production points to destinations."
+    },
+    {
+        "id": 62,
+        "question": "Which uncontrolled element of the marketing environment forces the company to adjust its price in the case?",
+        "options": [
+            "Economic",
+            "Technological",
+            "Socio-Cultural",
+            "Demographic",
+            "Political"
+        ],
+        "correct_answer": "Economic",
+        "explanation": "Overall economic trends and loan availability drive pricing adjustments."
+    },
+    {
+        "id": 63,
+        "question": "Which of the following the consultant is best described by?",
+        "options": [
+            "Marketing Service Agency",
+            "Government Public",
+            "Government Intermediary",
+            "Regulatory Body",
+            "None of the above"
+        ],
+        "correct_answer": "Regulatory Body",
+        "explanation": "The Ministry of Industry functions as a government Regulatory Body providing sector oversight and guidance."
+    },
+    {
+        "id": 64,
+        "question": "Ayida is a marketer for a global consumer products company. She is working on a promotional campaign designed to reach a target audience in a new international market. Ayida is working hard to make sure that the promotional campaign is clearly understood by the nation's consumers and doesn't offend anyone. By which of the factors in the external environment is he being influenced?",
+        "options": [
+            "Economic Environment",
+            "Political Environment",
+            "Legal Environment",
+            "Socio-Cultural Environment",
+            "Competitive Environment"
+        ],
+        "correct_answer": "Socio-Cultural Environment",
+        "explanation": "Cultural norms, language, symbols, and values comprise the socio-cultural environment in international markets."
+    },
+    {
+        "id": 65,
+        "question": "Which payment system does the company uses?",
+        "options": [
+            "Credit card",
+            "Cash",
+            "Stored Value",
+            "Accumulated Value",
+            "All of the above"
+        ],
+        "correct_answer": "Stored Value",
+        "explanation": "Pre-depositing funds onto a proprietary store payment card represents a Stored Value facility."
+    },
+    {
+        "id": 66,
+        "question": "What is the reason that customers are not purchasing online?",
+        "options": [
+            "Security Issue",
+            "Expensive payment",
+            "Age and Gender",
+            "A&B",
+            "A&C"
+        ],
+        "correct_answer": "A&B",
+        "explanation": "Consumer hesitation in adopting online purchases stems primarily from perceived payment security risks and costs."
+    },
+    {
+        "id": 67,
+        "question": "Which of the following is a user file that records the user’s activities on a company’s website from the computer log.",
+        "options": [
+            "Transaction log",
+            "Web bugs",
+            "Spyware",
+            "Web Mining",
+            "All of the above"
+        ],
+        "correct_answer": "Transaction log",
+        "explanation": "Server logs and transaction logs capture user clickstream data, browsing trails, and e-commerce events."
+    },
+    {
+        "id": 68,
+        "question": "In a generic consumer purchasing decision model which one of the following sequences is correct?",
+        "options": [
+            "Information search - Need Identification-Evaluation of alternatives-Purchase and delivery-post purchase activities",
+            "Need identification-Information search- Evaluation of alternatives-Purchase and delivery-post purchase activities",
+            "Evaluation of alternatives- Need Identification-Information search- Purchase and delivery- post purchase activities",
+            "Information search- Evaluation of alternatives- Need identification- Purchase and delivery-post purchase activities",
+            "None of the above"
+        ],
+        "correct_answer": "Need identification-Information search- Evaluation of alternatives-Purchase and delivery-post purchase activities",
+        "explanation": "The consumer decision funnel begins with Problem/Need Identification, followed by Search, Alternative Evaluation, Purchase, and Post-Purchase behavior."
+    },
+    {
+        "id": 69,
+        "question": "Which of the following CRM strategy is used when offering complementary products or enhanced products?",
+        "options": [
+            "Loyalty programs",
+            "Online networking",
+            "Customer-touching applications",
+            "Cross-sell/up sell",
+            "Prospecting"
+        ],
+        "correct_answer": "Cross-sell/up sell",
+        "explanation": "Cross-selling offers related complementary products; up-selling offers higher-tier upgraded versions."
+    },
+    {
+        "id": 70,
+        "question": "Which of the following pricing strategy is the value of a good is equal to what the market is willing to pay?",
+        "options": [
+            "Free pricing strategy",
+            "Dynamic pricing",
+            "Price versioning",
+            "Bundling",
+            "None of the above"
+        ],
+        "correct_answer": "Dynamic pricing",
+        "explanation": "Dynamic pricing continuously adjusts prices based on real-time market willingness-to-pay and demand signals."
+    },
+    {
+        "id": 71,
+        "question": "A retail store that operates online on selling consumer products. To aware and inform customers the company enter into agreement with other companies to post the ads in their website free of charge in addition to ads posted in own webpage. Which forms of online ads does the company applies?",
+        "options": [
+            "Banner advertisement and URL ads",
+            "Search engine ads and URL ads",
+            "Search engine ads and Banner Swapping",
+            "Search engine ads and Banner advertisement",
+            "Banner advertisement and Banner Swapping"
+        ],
+        "correct_answer": "Banner advertisement and Banner Swapping",
+        "explanation": "Exchanging promotional space across partner sites free of charge is called Banner Swapping."
+    },
+    {
+        "id": 72,
+        "question": "All except one is objectives of e-commerce",
+        "options": [
+            "Reduced costs",
+            "Lower product cycle time",
+            "Faster customer response",
+            "Improved service quality",
+            "High security threat"
+        ],
+        "correct_answer": "High security threat",
+        "explanation": "Security threats are operational risks, not positive objectives of e-commerce adoption."
+    },
+    {
+        "id": 73,
+        "question": "As a business firm it is important to develop a website. All except one of the following should the website comprise so that it will be effective?",
+        "options": [
+            "Inconvenient to select a product",
+            "Easier order forms",
+            "Easier payment system",
+            "Secure communication",
+            "None of the above"
+        ],
+        "correct_answer": "Inconvenient to select a product",
+        "explanation": "Inconvenient navigation frustrates users and reduces website conversion."
+    },
+    {
+        "id": 74,
+        "question": "E-commerce is unique for the following reasons except",
+        "options": [
+            "Ubiquity",
+            "Universal Standards",
+            "Instability",
+            "Interactivity",
+            "Personalization"
+        ],
+        "correct_answer": "Instability",
+        "explanation": "The core unique features of e-commerce technology are Ubiquity, Global Reach, Universal Standards, Richness, Interactivity, Information Density, and Personalization."
+    },
+    {
+        "id": 75,
+        "question": "Which of the following correct about content providers?",
+        "options": [
+            "Online distribution channel for company that also has physical stores",
+            "Online version of direct mail catalogue",
+            "Online sales made directly by the manufacturer itself",
+            "They are information and entertainment companies",
+            "None of the above"
+        ],
+        "correct_answer": "They are information and entertainment companies",
+        "explanation": "Content providers distribute digital intellectual property such as news, music, video, and digital media."
+    },
+    {
+        "id": 76,
+        "question": "The difference between B2B hub and electronic distributers is that:",
+        "options": [
+            "B2B hub supply products and services directly to individual businesses",
+            "B2B hub rely on transaction fee for their existence",
+            "B2B hub are set up by one company seeking to serve many customers",
+            "B2B hub create a digital online environment where people with similar interests can transact",
+            "B2B hub are companies that make money by selling users a service, rather than a tangible product"
+        ],
+        "correct_answer": "B2B hub rely on transaction fee for their existence",
+        "explanation": "B2B hubs function as digital marketplaces charging commissions/transaction fees connecting multiple buyers and sellers."
+    },
+    {
+        "id": 77,
+        "question": "Which of the following is not limitation of e-commerce?",
+        "options": [
+            "Security issues are yet to be improved",
+            "Customers doesn’t trust the product they purchase",
+            "Telecommunication bandwidth is insufficient",
+            "Software-hardware compatibility issues",
+            "Detailed product information"
+        ],
+        "correct_answer": "Detailed product information",
+        "explanation": "Providing rich, detailed product specifications is an advantage of digital platforms, not a limitation."
+    },
+    {
+        "id": 78,
+        "question": "A firm could create a competitive advantage through all except:",
+        "options": [
+            "Patent",
+            "Connection",
+            "Compensation",
+            "Image",
+            "First mover"
+        ],
+        "correct_answer": "Compensation",
+        "explanation": "Routine internal employee compensation is an administrative expense rather than a differentiated strategic market advantage."
+    },
+    {
+        "id": 79,
+        "question": "In pooling effective management team, which issues should be raised?",
+        "options": [
+            "Technical background",
+            "Supervisory experience",
+            "Functions to be filled first",
+            "All of the above",
+            "None of the above"
+        ],
+        "correct_answer": "All of the above",
+        "explanation": "Building an executive team requires reviewing domain skills, managerial experience, and key functional gaps."
+    },
+    {
+        "id": 80,
+        "question": "Western union announced that it has arranged a contest full of attractive prizes for customers who involve in money transfer with in thirty days. This refers to",
+        "options": [
+            "Advertising",
+            "Personal selling",
+            "Sales promotion",
+            "Publicity",
+            "None of the above"
+        ],
+        "correct_answer": "Sales promotion",
+        "explanation": "Contests and temporary prize incentives are classic sales promotion tools to boost short-term volume."
+    },
+    {
+        "id": 81,
+        "question": "What type of advertising points out a brand’s uses, features, and advantages that benefit consumers but may not be available in other brands?",
+        "options": [
+            "Reminder advertising",
+            "Reinforcement advertising",
+            "Competitive advertising",
+            "Defensive advertising",
+            "Institutional advertising"
+        ],
+        "correct_answer": "Competitive advertising",
+        "explanation": "Competitive advertising highlights specific brand features to build selective demand against rivals."
+    },
+    {
+        "id": 82,
+        "question": "When John McCain ran for U.S. President against Barack Obama, the McCain campaign ran ads showing a child plucking the petals from a daisy with an atomic explosion in the background to reinforce the belief that Obama would start a nuclear war. This ads is an example of the use of a (n) appeal.",
+        "options": [
+            "Irrational",
+            "Refutation",
+            "Source",
+            "Two sided",
+            "Fear appeal"
+        ],
+        "correct_answer": "Fear appeal",
+        "explanation": "Fear appeals leverage anxiety or alarming consequences to motivate shifts in attitudes or choices."
+    },
+    {
+        "id": 83,
+        "question": "Advertising that promotes organizational images, ideas, and political issues is advertising.",
+        "options": [
+            "Defensive",
+            "Institutional",
+            "Competitive",
+            "Comparative",
+            "Product"
+        ],
+        "correct_answer": "Institutional",
+        "explanation": "Institutional advertising builds corporate reputation and public goodwill rather than promoting individual products."
+    },
+    {
+        "id": 84,
+        "question": "When Kebede looked at the Sheraton Addis ads in Paintball Sports International magazine, he did not understand why someone playing paintball would need a power booster, a sticky grip, or three different grades of paint. His inability to understand the advertising message indicates a problem with:",
+        "options": [
+            "Encoding",
+            "Sending",
+            "Perception",
+            "Channeling",
+            "Decoding"
+        ],
+        "correct_answer": "Decoding",
+        "explanation": "Decoding occurs when the receiver interprets the message; misunderstanding indicates a failure in decoding."
+    },
+    {
+        "id": 85,
+        "question": "Ato Nesibu complains to his advertising director that the continuing slump in orders has apparently been perpetuated by the firm’s failure to have the necessary advertising expenditures in key media. Based on this information, the firm is MOST likely using the approach to determine its advertising appropriation.",
+        "options": [
+            "Percent-of-sales",
+            "Objective-and-task",
+            "Competition matching",
+            "Arbitrary",
+            "None"
+        ],
+        "correct_answer": "Percent-of-sales",
+        "explanation": "The percent-of-sales method cuts ad budgets during sales declines, compounding the slump."
+    },
+    {
+        "id": 86,
+        "question": "Which of the following is not an example of persuasive advertising?",
+        "options": [
+            "Changing customers perceptions about product attributes",
+            "Explaining how the product works",
+            "Persuading customers to receive a sales call",
+            "Encouraging the customers to purchase now",
+            "Building brand preferences"
+        ],
+        "correct_answer": "Explaining how the product works",
+        "explanation": "Explaining product mechanics is an objective of Informative advertising used during product introduction."
+    },
+    {
+        "id": 87,
+        "question": "Which of the following is the advantages of Direct Marketing?",
+        "options": [
+            "Selective Reach",
+            "Image factors",
+            "Accuracy",
+            "Content support",
+            "Rising costs"
+        ],
+        "correct_answer": "Selective Reach",
+        "explanation": "Direct marketing allows companies to target specific consumer segments directly."
+    },
+    {
+        "id": 88,
+        "question": "The basic objective of PR is to:",
+        "options": [
+            "Stimulate immediate sales",
+            "Convince customers",
+            "Create positive image in the public",
+            "Create awareness about the product",
+            "Reduce cost"
+        ],
+        "correct_answer": "Create positive image in the public",
+        "explanation": "Public Relations focuses on building mutual goodwill and a positive organizational reputation."
+    },
+    {
+        "id": 89,
+        "question": "Which tool of the promotional mix consists of short-term incentives to encourage the purchase of sale of a product or service?",
+        "options": [
+            "Advertising",
+            "Public relations",
+            "Direct marketing",
+            "Sales promotion",
+            "Interactive marketing"
+        ],
+        "correct_answer": "Sales promotion",
+        "explanation": "Sales promotions provide immediate short-term buying incentives."
+    },
+    {
+        "id": 90,
+        "question": "is direct communications with carefully targeted individual consumers to obtain an immediate response.",
+        "options": [
+            "Personal selling",
+            "Public relations",
+            "Direct marketing",
+            "Sales promotion",
+            "Advertising"
+        ],
+        "correct_answer": "Direct marketing",
+        "explanation": "Direct marketing uses channels like direct mail, email, and telemarketing for immediate direct responses."
+    },
+    {
+        "id": 91,
+        "question": "A is a promotion strategy that calls for using the sales force and trade promotion to move the product through channels.",
+        "options": [
+            "Push strategy",
+            "Pull strategy",
+            "Blocking strategy",
+            "Integrated strategy",
+            "Demarcated strategy"
+        ],
+        "correct_answer": "Push strategy",
+        "explanation": "A push strategy uses personal selling and trade promotions to push goods through distribution channels."
+    },
+    {
+        "id": 92,
+        "question": "If Sony tries to convince consumers that its brand of computer disks is the best quality for the money, it is using which of the following forms of advertising?",
+        "options": [
+            "Informative advertising",
+            "Psychological advertising",
+            "Reminder advertising",
+            "Persuasive advertising",
+            "Comparative advertising"
+        ],
+        "correct_answer": "Persuasive advertising",
+        "explanation": "Persuasive advertising seeks to influence brand preference and value perception."
+    },
+    {
+        "id": 93,
+        "question": "After determining its advertising objectives, a company next sets its for each product.",
+        "options": [
+            "Advertising strategy",
+            "Advertising budget",
+            "Advertising goals",
+            "Advertising format",
+            "Advertising plan"
+        ],
+        "correct_answer": "Advertising budget",
+        "explanation": "Setting marketing objectives is followed by establishing the necessary promotional budget."
+    },
+    {
+        "id": 94,
+        "question": "Determining the promotion budget on the basis of financial availability of capital is characteristic of which of the following budget methods?",
+        "options": [
+            "Affordable method",
+            "Percentage-of-sales method",
+            "Competitive-parity method",
+            "Objective-and-task method",
+            "Sales forecast method"
+        ],
+        "correct_answer": "Affordable method",
+        "explanation": "The affordable method allocates whatever capital management feels the business can spare."
+    },
+    {
+        "id": 95,
+        "question": "The measure of the percentage of people in the target market who are exposed to the ad campaign during a given period of time is called:",
+        "options": [
+            "Thought",
+            "Frequency",
+            "Impact",
+            "Performance",
+            "Reach"
+        ],
+        "correct_answer": "Reach",
+        "explanation": "Reach represents the percentage of target audience members exposed to an advertisement at least once."
+    },
+    {
+        "id": 96,
+        "question": "One of the main advantages of using a direct exporting over an indirect export mode is:",
+        "options": [
+            "Limited commitment and investment required",
+            "Minimal market and political risk",
+            "Shared costs and risks of internationalization",
+            "More control over marketing mix",
+            "None"
+        ],
+        "correct_answer": "More control over marketing mix",
+        "explanation": "Direct exporting grants higher control over pricing, brand positioning, and channel strategy."
+    },
+    {
+        "id": 97,
+        "question": "Which one of the following is wrong statement about the advantage of exporting over other mode of entries?",
+        "options": [
+            "More control over the export process,",
+            "Needs to devote more time, personnel and resources",
+            "Potentially higher profits",
+            "A closer relationship to the overseas buyer and marketplace",
+            "None"
+        ],
+        "correct_answer": "Needs to devote more time, personnel and resources",
+        "explanation": "Resource and time commitment is an operational requirement/disadvantage, not a advantage."
+    },
+    {
+        "id": 98,
+        "question": "is an individual or firm authorized to act on behalf of another, such as by executing a transaction or selling.",
+        "options": [
+            "Distributor",
+            "Manufacturer",
+            "Agent",
+            "Manager",
+            "All"
+        ],
+        "correct_answer": "Agent",
+        "explanation": "An agent acts as a representative authorized to conduct transactions on behalf of a principal."
+    },
+    {
+        "id": 99,
+        "question": "Among the following which statement is correct about franchising?",
+        "options": [
+            "Well established business",
+            "Needs limited investment",
+            "Easy entry in new markets",
+            "Separates labor and specialization",
+            "All of them"
+        ],
+        "correct_answer": "All of them",
+        "explanation": "Franchising provides a proven business system, shared capital investment, and rapid market entry."
+    },
+    {
+        "id": 100,
+        "question": "A type of agent which handles a variety of goods, including some that may compete with the exporter’s products",
+        "options": [
+            "Non exclusive",
+            "Exclusive",
+            "Semi exclusive",
+            "Distributers",
+            "None"
+        ],
+        "correct_answer": "Non exclusive",
+        "explanation": "A non-exclusive agent can represent multiple product lines, including directly competing products."
+    }
+]
