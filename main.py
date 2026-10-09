@@ -61,7 +61,7 @@ MAIN_KEYBOARD = ReplyKeyboardMarkup(
         [KeyboardButton('💻 CS Exam'), KeyboardButton('🌐 IT Exam')],
         [KeyboardButton('📊 Marketing Mgmt')],
         [KeyboardButton('💳 Payment / Upgrade'), KeyboardButton('ℹ️ Help / Admin')],
-        [KeyboardButton('🆔 My User ID')],
+        [KeyboardButton('🆔 My User ID'), KeyboardButton('🔗 Share Bot')],
     ],
     resize_keyboard=True,
 )
@@ -252,6 +252,16 @@ async def handle_text_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
             f'👤 **Your Telegram User ID:** `{user_id}`\n\n'
             f'*(Tap the ID number above to copy it and send it to the Admin for approval.)*',
             parse_mode='Markdown'
+        )
+    elif text == '🔗 Share Bot':
+        share_msg = (
+            "🎓 **Exit Exam መለማመጃ ቦት!**\n\n"
+            "በ Computer Science፣ IT እና Marketing Management የተዘጋጁ የ Exit Exam ጥያቄዎችን ከነማብራሪያቸው ይለማመዱ።\n\n"
+            "👇 አሁኑኑ ለመጀመር ከታች ያለውን ሊንክ ይጫኑ፦\n"
+            "https://t.me/ethio_exit_exam_quiz_bot"
+        )
+        await update.message.reply_text(
+            f"የሚከተለውን መልዕክት ፎርዋርድ በማድረግ ወይም ኮፒ በማድረግ ለጓደኞችዎ እና ለግሩፖች ያጋሩ፦\n\n{share_msg}"
         )
 
 async def approve_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
