@@ -21,7 +21,7 @@ from telegram.ext import (
 # Questions file
 from cs_questions import CS_EXIT_EXAM_2018
 
-# 1. Render እንዳይተኛ HTTP Web Server
+# 1. Render Keep-Alive HTTP Web Server (Port 8080)
 app_flask = Flask(__name__)
 
 @app_flask.route('/')
@@ -44,8 +44,9 @@ ADMIN_USERNAME = '@anmg2828kt'
 
 MAIN_KEYBOARD = ReplyKeyboardMarkup(
     [
-        [KeyboardButton('🚀 Start'), KeyboardButton('🎯 Quiz Start')],
-        [KeyboardButton('💳 Kfya / Payment'), KeyboardButton('ℹ️ Help / Admin')],
+        [KeyboardButton('🚀 Start'), KeyboardButton('🎯 Start Quiz')],
+        [KeyboardButton('💳 Payment / Upgrade'), KeyboardButton('ℹ️ Help / Admin')],
+        [KeyboardButton('🆔 My User ID')],
     ],
     resize_keyboard=True,
 )
@@ -54,10 +55,10 @@ MAIN_KEYBOARD = ReplyKeyboardMarkup(
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_name = update.effective_user.first_name
     welcome_text = (
-        f'ሰላም {user_name}! 👋\n\n'
-        f'እንኳን ወደ **የኮምፒውተር ሳይንስ Exit Exam ልምምድ ቦት** በደህና መጡ።\n\n'
-        f'📌 የመጀመሪያዎቹን {FREE_QUESTIONS_LIMIT} ጥያቄዎች በነጻ መሞከር ይችላሉ!\n'
-        f'ከታች ያሉትን አዝራሮች (Buttons) በመጠቀም መጀመር ይችላሉ።'
+        f'Welcome {user_name}! 👋\n\n'
+        f'Welcome to the **Computer Science Exit Exam Practice Bot**.\n\n'
+        f'📌 You can practice the first {FREE_QUESTIONS_LIMIT} questions for FREE!\n'
+        f'Use the buttons below to navigate and begin.'
     )
     await update.message.reply_text(
         welcome_text, reply_markup=MAIN_KEYBOARD, parse_mode='Markdown'
@@ -72,28 +73,29 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         index = context.user_data.get('current_index', 0)
         chat_id = update.effective_chat.id
 
-        # 1. Free limit check
+        # 1. Free Limit Check
         if index >= FREE_QUESTIONS_LIMIT and not context.user_data.get('is_paid', False):
             payment_text = (
-                f'🔒 **የነጻ ልምምድ ገደብ አልቋል!**\n\n'
-                f'የነጻ ፈተና እድልዎ ({FREE_QUESTIONS_LIMIT} ጥያቄዎች) ተጠናቋል። ሁሉንም 100 ጥያቄዎች ለማግኘት የ **100 ብር** ክፍያ ይፈጽሙ።\n\n'
-                f'💳 **የክፍያ አማራጮች፦**\n'
-                f'• **Telebirr / CBE፦** `0934234392`\n'
-                f'• **የአካውንት ስም፦** Kebede Assefa\n\n'
-                f'📩 **የክፍያ ማረጋገጫ ለመላክ፦**\n'
-                f'የከፈሉበትን ደረሰኝ (Screenshot) ለ Admin ይላኩ፦ {ADMIN_USERNAME}\n\n'
-                f'ክፍያዎ እንደተረጋገጠ ቦቱ ይከፈትልዎታል።'
+                f'🔒 **Free Trial Limit Reached!**\n\n'
+                f'You have completed your free trial of {FREE_QUESTIONS_LIMIT} questions.\n'
+                f'To unlock all 100 questions, please pay **100 ETB**.\n\n'
+                f'💳 **Payment Options:**\n'
+                f'• **Telebirr / CBE:** `0934234392`\n'
+                f'• **Account Name:** Kebede Assefa\n\n'
+                f'📩 **Confirmation:**\n'
+                f'Send your payment receipt screenshot and your User ID (`{chat_id}`) to Admin: {ADMIN_USERNAME}\n\n'
+                f'Your access will be activated immediately after verification.'
             )
             await context.bot.send_message(chat_id=chat_id, text=payment_text, parse_mode='Markdown')
             return
 
-        # 2. End of quiz check
+        # 2. End of Quiz Check
         if index >= len(CS_EXIT_EXAM_2018):
-            text = '🎉 **እንኳን ደስ አለዎት! ሁሉንም ጥያቄዎች ጨርሰዋል።**'
+            text = '🎉 **Congratulations! You have completed all questions.**'
             await context.bot.send_message(chat_id=chat_id, text=text, parse_mode='Markdown')
             return
 
-        # 3. Question formatting
+        # 3. Question Formatting
         q = CS_EXIT_EXAM_2018[index]
         letters = ['A', 'B', 'C', 'D', 'E', 'F']
 
@@ -101,11 +103,10 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         for opt_idx, option in enumerate(q['options']):
             letter_prefix = letters[opt_idx] if opt_idx < len(letters) else f'{opt_idx+1}'
             button_label = f'{letter_prefix}. {option}'
-            # callback_data contains question index and selected option index
             keyboard.append([InlineKeyboardButton(button_label, callback_data=f'ans|{index}|{opt_idx}')])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
-        question_text = f"**ጥያቄ {q['id']} / {len(CS_EXIT_EXAM_2018)}**\n\n{q['question']}"
+        question_text = f"**Question {q['id']} / {len(CS_EXIT_EXAM_2018)}**\n\n{q['question']}"
 
         await context.bot.send_message(
             chat_id=chat_id,
@@ -120,7 +121,6 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
 
-    # Parse callback_data: ans|q_index|opt_idx
     parts = query.data.split('|')
     q_index = int(parts[1])
     opt_idx = int(parts[2])
@@ -137,22 +137,21 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if str(user_choice).strip() == str(q['correct_answer']).strip():
         result_text = (
-            f'✅ **ትክክል ነው!**\n\n'
-            f"🎯 **መልስ፦** {q['correct_answer']}\n"
-            f"💡 **ማብራሪያ፦** {q['explanation']}"
+            f'✅ **Correct Answer!**\n\n'
+            f"🎯 **Answer:** {q['correct_answer']}\n"
+            f"💡 **Explanation:** {q['explanation']}"
         )
     else:
         result_text = (
-            f'❌ **ተሳስቷል!**\n\n'
-            f'የመረጡት፦ {user_choice_formatted}\n'
-            f"🎯 **ትክክለኛው መልስ፦** {q['correct_answer']}\n\n"
-            f"💡 **ማብራሪያ፦** {q['explanation']}"
+            f'❌ **Incorrect Answer!**\n\n'
+            f'Your Choice: {user_choice_formatted}\n'
+            f"🎯 **Correct Answer:** {q['correct_answer']}\n\n"
+            f"💡 **Explanation:** {q['explanation']}"
         )
 
-    # Next question callback carries the NEXT question index directly
     next_q_index = q_index + 1
     next_keyboard = InlineKeyboardMarkup(
-        [[InlineKeyboardButton('ቀጣይ ጥያቄ ➡️', callback_data=f'next|{next_q_index}')]]
+        [[InlineKeyboardButton('Next Question ➡️', callback_data=f'next|{next_q_index}')]]
     )
 
     await query.edit_message_text(text=result_text, reply_markup=next_keyboard, parse_mode='Markdown')
@@ -164,36 +163,43 @@ async def next_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
     parts = query.data.split('|')
     next_q_index = int(parts[1])
 
-    # Update index in user context
     context.user_data['current_index'] = next_q_index
     await send_question(update, context)
 
 async def handle_text_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE):
     text = update.message.text
+    user_id = update.effective_user.id
 
     if text == '🚀 Start':
         await start(update, context)
-    elif text == '🎯 Quiz Start':
+    elif text in ['🎯 Start Quiz', '🎯 Quiz Start']:
         await start_quiz(update, context)
-    elif text == '💳 Kfya / Payment':
+    elif text in ['💳 Payment / Upgrade', '💳 Kfya / Payment']:
         payment_info = (
-            f'💳 **የክፍያ መረጃ**\n\n'
-            f'• **Telebirr / CBE፦** `0934234392`\n'
-            f'• **የአካውንት ስም፦** Kebede Assefa\n'
-            f'• **ክፍያ፦** 100 Birr\n\n'
-            f'ከከፈሉ በኋላ ደረሰኙን ለ Admin ይላኩ፦ {ADMIN_USERNAME}'
+            f'💳 **Payment Information**\n\n'
+            f'• **Telebirr / CBE:** `0934234392`\n'
+            f'• **Account Name:** Kebede Assefa\n'
+            f'• **Fee:** 100 ETB\n\n'
+            f'🆔 **Your Telegram User ID:** `{user_id}`\n\n'
+            f'After payment, send your receipt screenshot along with your User ID to Admin: {ADMIN_USERNAME}'
         )
         await update.message.reply_text(payment_info, parse_mode='Markdown')
-    elif text == 'ℹ️ Help / Admin':
-        await update.message.reply_text(f'ለማንኛውም ጥያቄ ወይም እርዳታ Adminን ያናግሩ፦ {ADMIN_USERNAME}')
+    elif text in ['ℹ️ Help / Admin']:
+        await update.message.reply_text(f'For support or questions, contact Admin: {ADMIN_USERNAME}')
+    elif text == '🆔 My User ID':
+        await update.message.reply_text(
+            f'👤 **Your Telegram User ID:** `{user_id}`\n\n'
+            f'*(Tap the ID number above to copy it and send it to the Admin for approval.)*',
+            parse_mode='Markdown'
+        )
 
 async def approve_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
     if update.effective_user.id != ADMIN_ID:
-        await update.message.reply_text('❌ ይቅርታ! ይህንን ማድረግ የሚችለው Admin ብቻ ነው።')
+        await update.message.reply_text('❌ Unauthorized! Only Admin can use this command.')
         return
 
     if not context.args:
-        await update.message.reply_text('⚠️ ID ያስገቡ! (ምሳሌ፦ `/approve 987654321`)', parse_mode='Markdown')
+        await update.message.reply_text('⚠️ Please provide User ID! (Example: `/approve 987654321`)', parse_mode='Markdown')
         return
 
     try:
@@ -202,16 +208,16 @@ async def approve_user(update: Update, context: ContextTypes.DEFAULT_TYPE):
         user_data['is_paid'] = True
 
         await update.message.reply_text(
-            f'✅ ተጠቃሚ ID `{user_id_to_approve}` ተከፍቷል!',
+            f'✅ User ID `{user_id_to_approve}` approved successfully!',
             parse_mode='Markdown',
         )
         await context.bot.send_message(
             chat_id=user_id_to_approve,
-            text='🎉 **ክፍያዎ ተረጋግጧል!**\n\nአሁን ሁሉንም ጥያቄዎች መስራት ይችላሉ።',
+            text='🎉 **Payment Verified!**\n\nYou now have full access to all exit exam questions.',
             parse_mode='Markdown',
         )
     except Exception as e:
-        await update.message.reply_text(f'ስህተት ተፈጠረ፦ {e}')
+        await update.message.reply_text(f'Error occurred: {e}')
 
 # 4. Main Execution
 if __name__ == '__main__':
@@ -228,5 +234,5 @@ if __name__ == '__main__':
     app.add_handler(CallbackQueryHandler(next_question, pattern='^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
 
-    print('ቦቱ ሥራ ጀምሯል...')
+    print('Bot started successfully...')
     app.run_polling()
