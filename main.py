@@ -21,10 +21,10 @@ from telegram.ext import (
 # ጥያቄዎችን እና Database መጫን
 from cs_questions import CS_EXIT_EXAM_2018
 from mgmt_questions import (
-    MARKETING_MGMT_EXIT_EXAM,
-    MGMT_2016,
-    MGMT_2017,
-    MGMT_2018,
+    MGMT_2016, MGMT_M2016,
+    MGMT_2017, MGMT_M2017,
+    MGMT_2018, MGMT_M2018,
+    MARKETING_MGMT_EXIT_EXAM
 )
 from it_questions import IT_EXIT_EXAM
 from database import (
@@ -78,7 +78,7 @@ def get_questions_for_user(context: ContextTypes.DEFAULT_TYPE):
         
     dept = context.user_data.get('department', 'cs')
     if dept == 'mgmt':
-        return MGMT_2017 if MGMT_2017 else MARKETING_MGMT_EXIT_EXAM
+        return MGMT_2017
     elif dept == 'it':
         return IT_EXIT_EXAM
     return CS_EXIT_EXAM_2018
@@ -138,7 +138,7 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
     query = update.callback_query
     await query.answer()
     
-    data = query.data  # ምሳሌ: 'mgmt_2017' ወይም 'cs_2018'
+    data = query.data  # ምሳሌ: 'mgmt_2017' ወይም 'mgmt_m2016'
     try:
         dept, exam_type = data.split('_', 1)
     except ValueError:
@@ -149,17 +149,22 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
     selected_questions = []
 
-    # የጥያቄ ዝርዝሮችን መምረጥ (ለ Marketing Management በዓመት ደረጃ)
+    # የጥያቄ ዝርዝሮችን መምረጥ (ለ Marketing Management)
     if dept == 'mgmt':
         if exam_type == '2016':
             selected_questions = MGMT_2016
+        elif exam_type == 'm2016':
+            selected_questions = MGMT_M2016
         elif exam_type == '2017':
             selected_questions = MGMT_2017
+        elif exam_type == 'm2017':
+            selected_questions = MGMT_M2017
         elif exam_type == '2018':
             selected_questions = MGMT_2018
+        elif exam_type == 'm2018':
+            selected_questions = MGMT_M2018
         else:
-            # ለ Model ፈተናዎች ወይም ነባር ካሉ
-            selected_questions = MGMT_2017 if MGMT_2017 else MARKETING_MGMT_EXIT_EXAM
+            selected_questions = MGMT_2017
     elif dept == 'it':
         selected_questions = IT_EXIT_EXAM
     elif dept == 'cs':
@@ -171,7 +176,7 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
     context.user_data['questions_list'] = selected_questions
 
-    exam_title = f"{exam_type.upper()}" if not exam_type.startswith('m') else f"Model {exam_type[1:]}"
+    exam_title = f"Exit Exam {exam_type}" if not exam_type.startswith('m') else f"Model Exam {exam_type[1:]}"
     await query.edit_message_text(f"✅ **{dept.upper()} - {exam_title}** ተመርጧል! ፈተናው ይጀምራል...", parse_mode='Markdown')
     
     # የመጀመሪያውን ጥያቄ መላክ
@@ -221,7 +226,6 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         question_text = f"📚 **{dept_title}**\n**Question {q.get('id', index+1)} / {len(questions_list)}**\n\n{q['question']}"
 
-        # update.callback_query ካለ edit እናደርጋለን፣ ካለፈም send_message
         if update.callback_query:
             await context.bot.send_message(
                 chat_id=chat_id,
@@ -326,7 +330,7 @@ async def handle_text_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
         share_msg = (
             "🎓 **Exit Exam መለማመጃ ቦት!**\n\n"
             "በ Computer Science፣ IT እና Marketing Management የተዘጋጁ የ Exit Exam ጥያቄዎችን ከነማብራሪያቸው ይለማመዱ።\n\n"
-            "👇 아ሁኑኑ ለመጀመር ከታች ያለውን ሊንክ ይጫኑ፦\n"
+            "👇 አሁኑኑ ለመጀመር ከታች ያለውን ሊንክ ይጫኑ፦\n"
             "https://t.me/ethio_exit_exam_quiz_bot"
         )
         await update.message.reply_text(
@@ -427,7 +431,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('stats', admin_stats))
     app.add_handler(CommandHandler('broadcast', broadcast))
     
-    # የዓመታት መምረጫ Callback Handler (ትክክለኛው የ pattern አሰራር)
+    # የዓመታት እና ሞዴል መምረጫ Callback Handler
     app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern='^(cs|it|mgmt)_(2016|2017|2018|m2016|m2017|m2018)\$'))
     
     app.add_handler(CallbackQueryHandler(handle_answer, pattern='^ans\|'))
@@ -436,3 +440,4 @@ if __name__ == '__main__':
 
     print('Bot started successfully with Year Sub-menus support...')
     app.run_polling()
+
