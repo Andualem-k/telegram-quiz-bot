@@ -32,6 +32,7 @@ from database import (
     get_total_users_count,
 )
 
+# ዳታቤዙን ማስጀመር (ሰርቨሩ ቢጠፋም ዩዘሮች እንዳይጠፉ)
 init_db()
 
 # 1. Render Web Service እንዲሰራ Flask መክፈት
@@ -73,6 +74,7 @@ def get_questions_for_user(context: ContextTypes.DEFAULT_TYPE):
 # 3. Handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
+    # ተጠቃሚው ቦቱን ሲጀምር በቋሚ ዳታቤዝ ውስጥ ይመዝገባል (Render ቢጠፋም አይጠፋም)
     add_all_user(user_id)
     
     user_name = update.effective_user.first_name
@@ -90,9 +92,11 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         welcome_text, reply_markup=MAIN_KEYBOARD, parse_mode='Markdown'
     )
 
-# ዲፓርትመንት ሲመረጥ በቀጥታ ጥያቄውን ማስጀመር (ያለምንም የዓመታት ምናሌ)
+# ዲፓርትመንት ሲመረጥ በቀጥታ ጥያቄውን ማስጀመር
 async def start_exam_direct(update: Update, context: ContextTypes.DEFAULT_TYPE, dept_code: str):
-    add_all_user(update.effective_user.id)
+    user_id = update.effective_user.id
+    add_all_user(user_id)
+    
     context.user_data['department'] = dept_code
     context.user_data['current_index'] = 0
 
@@ -110,7 +114,6 @@ async def start_exam_direct(update: Update, context: ContextTypes.DEFAULT_TYPE, 
     dept_title = "Marketing Management" if dept_code == 'mgmt' else ("Information Technology" if dept_code == 'it' else "Computer Science")
     await update.message.reply_text(f"✅ **{dept_title} Exam** ተመርጧል! ፈተናው ይጀምራል...", parse_mode='Markdown')
     
-    # በቀጥታ ጥያቄውን መላክ
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -320,6 +323,7 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     message_to_send = " ".join(context.args)
+    # ከዳታቤዝ ውስጥ የተጠቃሚዎችን IDs በሙሉ ማምጣት
     all_users = get_all_users()
     
     success_count = 0
@@ -363,5 +367,5 @@ if __name__ == '__main__':
     app.add_handler(CallbackQueryHandler(next_question, pattern=r'^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
 
-    print('Bot started successfully without year submenus...')
+    print('Bot started successfully with permanent Database storage...')
     app.run_polling()
