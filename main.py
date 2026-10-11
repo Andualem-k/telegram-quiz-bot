@@ -32,7 +32,6 @@ from database import (
     get_total_users_count,
 )
 
-# Database ማስመርመር
 init_db()
 
 # 1. Render Web Service እንዲሰራ Flask መክፈት
@@ -120,38 +119,39 @@ async def show_years_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, de
     
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
 
-# ተማሪው የትኛውንም ዓመት (2016, 2017, 2018) ሲጫን የሚሰራው
+# አዝራሮቹ ሲጫኑ ፍጹም እንዳይተነጠሉ የሚያደርግ ማስተካከያ
 async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    # ወዲያውኑ ለቴሌግራም Ack መላክ (የነጭ መስመር Loading እንዲጠፋ)
+    try:
+        await query.answer()
+    except Exception:
+        pass
     
     data = query.data
-    try:
-        dept, exam_type = data.split('_', 1)
-    except ValueError:
-        return
+    dept = 'cs'
+    if '_' in data:
+        dept = data.split('_')[0]
 
     context.user_data['department'] = dept
     context.user_data['current_index'] = 0
 
-    # የትኛውም የ Marketing ዓመት ቢመረጥ ጥያቄዎቹን ከ MGMT_2017 መውሰድ
     if dept == 'mgmt':
         selected_questions = MGMT_2017
     elif dept == 'it':
         selected_questions = IT_EXIT_EXAM
-    elif dept == 'cs':
-        selected_questions = CS_EXIT_EXAM_2018
     else:
-        selected_questions = MGMT_2017
+        selected_questions = CS_EXIT_EXAM_2018
 
     context.user_data['questions_list'] = selected_questions
 
+    # የድሮውን ሜኑ ማጥፋት
     try:
         await query.delete_message()
     except Exception:
         pass
 
-    # ጥያቄውን በቀጥታ መላክ
+    # ጥያቄውን መላክ
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -207,7 +207,10 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    try:
+        await query.answer()
+    except Exception:
+        pass
 
     parts = query.data.split('|')
     q_index = int(parts[1])
@@ -247,7 +250,10 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 async def next_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    await query.answer()
+    try:
+        await query.answer()
+    except Exception:
+        pass
 
     parts = query.data.split('|')
     next_q_index = int(parts[1])
@@ -394,7 +400,9 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('stats', admin_stats))
     app.add_handler(CommandHandler('broadcast', broadcast))
     
-    app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern=r'^(cs|it|mgmt)_(2016|2017|2018|m2016|m2017|m2018)\$'))
+    # ማንኛውንም የዓመት አዝራር ክሊክ እንዲያስተናግድ የተስተካከለ Regex Pattern
+    app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern=r'^(cs|it|mgmt)_'))
+    
     app.add_handler(CallbackQueryHandler(handle_answer, pattern=r'^ans\|'))
     app.add_handler(CallbackQueryHandler(next_question, pattern=r'^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
