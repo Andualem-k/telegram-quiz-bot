@@ -18,13 +18,9 @@ from telegram.ext import (
     filters,
 )
 
-# Biya kple Database dede me
+# ጥያቄዎችን እና Database መጫን
 from cs_questions import CS_EXIT_EXAM_2018
-from mgmt_questions import (
-    MGMT_2016, MGMT_M2016,
-    MGMT_2017, MGMT_M2017,
-    MGMT_2018, MGMT_M2018
-)
+from mgmt_questions import MGMT_2017
 from it_questions import IT_EXIT_EXAM
 from database import (
     init_db,
@@ -38,7 +34,7 @@ from database import (
 
 init_db()
 
-# 1. Flask Web Service dede dɔ me na Render
+# 1. Render Web Service እንዲሰራ Flask መክፈት
 app_flask = Flask(__name__)
 
 @app_flask.route('/')
@@ -49,7 +45,7 @@ def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app_flask.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
 
-# 2. Logging dzraɖoɖo
+# 2. Logging ማስተካከል
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
@@ -94,81 +90,27 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         welcome_text, reply_markup=MAIN_KEYBOARD, parse_mode='Markdown'
     )
 
-async def show_years_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, dept_code: str):
+# ዲፓርትመንት ሲመረጥ በቀጥታ ጥያቄውን ማስጀመር (ያለምንም የዓመታት ምናሌ)
+async def start_exam_direct(update: Update, context: ContextTypes.DEFAULT_TYPE, dept_code: str):
     add_all_user(update.effective_user.id)
     context.user_data['department'] = dept_code
-    
-    dept_titles = {
-        'cs': 'Computer Science (CS)',
-        'it': 'Information Technology (IT)',
-        'mgmt': 'Marketing Management'
-    }
-    
-    keyboard = [
-        [
-            InlineKeyboardButton("📄 Exit Exam 2016", callback_data=f"{dept_code}_2016"),
-            InlineKeyboardButton("📝 Model 2016", callback_data=f"{dept_code}_m2016")
-        ],
-        [
-            InlineKeyboardButton("📄 Exit Exam 2017", callback_data=f"{dept_code}_2017"),
-            InlineKeyboardButton("📝 Model 2017", callback_data=f"{dept_code}_m2017")
-        ],
-        [
-            InlineKeyboardButton("📄 Exit Exam 2018", callback_data=f"{dept_code}_2018"),
-            InlineKeyboardButton("📝 Model 2018", callback_data=f"{dept_code}_m2018")
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    text = f"📚 **{dept_titles.get(dept_code, '')}**\n\nእባክዎ የሚፈልጉትን የፈተና ዓመት ወይም የሞዴል ፈተና ይምረጡ፡"
-    
-    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
-
-async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    query = update.callback_query
-    try:
-        await query.answer()
-    except Exception:
-        pass
-    
-    data = query.data
-    try:
-        dept, exam_type = data.split('_', 1)
-    except ValueError:
-        dept = 'mgmt'
-        exam_type = '2017'
-
-    context.user_data['department'] = dept
     context.user_data['current_index'] = 0
 
-    selected_questions = []
-
-    if dept == 'mgmt':
-        if exam_type == '2016':
-            selected_questions = MGMT_2016
-        elif exam_type == 'm2016':
-            selected_questions = MGMT_M2016
-        elif exam_type == '2017':
-            selected_questions = MGMT_2017
-        elif exam_type == 'm2017':
-            selected_questions = MGMT_M2017
-        elif exam_type == '2018':
-            selected_questions = MGMT_2018
-        elif exam_type == 'm2018':
-            selected_questions = MGMT_M2018
-        else:
-            selected_questions = MGMT_2017
-    elif dept == 'it':
+    if dept_code == 'mgmt':
+        selected_questions = MGMT_2017
+    elif dept_code == 'it':
         selected_questions = IT_EXIT_EXAM
-    elif dept == 'cs':
+    elif dept_code == 'cs':
         selected_questions = CS_EXIT_EXAM_2018
+    else:
+        selected_questions = MGMT_2017
 
     context.user_data['questions_list'] = selected_questions
 
-    try:
-        await query.delete_message()
-    except Exception:
-        pass
-
+    dept_title = "Marketing Management" if dept_code == 'mgmt' else ("Information Technology" if dept_code == 'it' else "Computer Science")
+    await update.message.reply_text(f"✅ **{dept_title} Exam** ተመርጧል! ፈተናው ይጀምራል...", parse_mode='Markdown')
+    
+    # በቀጥታ ጥያቄውን መላክ
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -195,7 +137,7 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         if index >= len(questions_list):
-            text = '🎉 **Congratulations! You have completed all questions in this department/year.**'
+            text = '🎉 **Congratulations! You have completed all questions in this department.**'
             await context.bot.send_message(chat_id=chat_id, text=text, parse_mode='Markdown')
             return
 
@@ -286,11 +228,11 @@ async def handle_text_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
     if text in ['🚀 Start', '⚡ Main Menu']:
         await start(update, context)
     elif text in ['💻 CS Exam', '💻 Computer Science']:
-        await show_years_menu(update, context, 'cs')
+        await start_exam_direct(update, context, 'cs')
     elif text in ['🌐 IT Exam', '🌐 Information Technology']:
-        await show_years_menu(update, context, 'it')
+        await start_exam_direct(update, context, 'it')
     elif text in ['📊 Marketing Mgmt', '📊 Marketing Management']:
-        await show_years_menu(update, context, 'mgmt')
+        await start_exam_direct(update, context, 'mgmt')
     elif text in ['💳 Payment / Upgrade', '💳 Kfya / Payment']:
         status = "✅ **Active Subscriber**" if is_user_paid(user_id) else "❌ **Free Trial User**"
         payment_info = (
@@ -417,10 +359,9 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('stats', admin_stats))
     app.add_handler(CommandHandler('broadcast', broadcast))
     
-    app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern=r'^(cs|it|mgmt)_'))
     app.add_handler(CallbackQueryHandler(handle_answer, pattern=r'^ans\|'))
     app.add_handler(CallbackQueryHandler(next_question, pattern=r'^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
 
-    print('Bot started successfully with Year Sub-menus support...')
+    print('Bot started successfully without year submenus...')
     app.run_polling()
