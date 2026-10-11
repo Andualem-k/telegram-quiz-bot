@@ -20,12 +20,12 @@ from telegram.ext import (
 
 # ጥያቄዎችን እና Database መጫን
 from cs_questions import CS_EXIT_EXAM_2018
-from mgmt_questions import MARKETING_MGMT_EXIT_EXAM
-try:
-    from mgmt_questions import MGMT_2017
-except ImportError:
-    MGMT_2017 = []
-
+from mgmt_questions import (
+    MARKETING_MGMT_EXIT_EXAM,
+    MGMT_2016,
+    MGMT_2017,
+    MGMT_2018,
+)
 from it_questions import IT_EXIT_EXAM
 from database import (
     init_db,
@@ -78,7 +78,7 @@ def get_questions_for_user(context: ContextTypes.DEFAULT_TYPE):
         
     dept = context.user_data.get('department', 'cs')
     if dept == 'mgmt':
-        return MARKETING_MGMT_EXIT_EXAM
+        return MGMT_2017 if MGMT_2017 else MARKETING_MGMT_EXIT_EXAM
     elif dept == 'it':
         return IT_EXIT_EXAM
     return CS_EXIT_EXAM_2018
@@ -149,12 +149,17 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
     selected_questions = []
 
-    # የጥያቄ ዝርዝሮችን መምረጥ
+    # የጥያቄ ዝርዝሮችን መምረጥ (ለ Marketing Management በዓመት ደረጃ)
     if dept == 'mgmt':
-        if exam_type == '2017' and MGMT_2017:
+        if exam_type == '2016':
+            selected_questions = MGMT_2016
+        elif exam_type == '2017':
             selected_questions = MGMT_2017
+        elif exam_type == '2018':
+            selected_questions = MGMT_2018
         else:
-            selected_questions = MARKETING_MGMT_EXIT_EXAM # ነባሩ ድጋፍ
+            # ለ Model ፈተናዎች ወይም ነባር ካሉ
+            selected_questions = MGMT_2017 if MGMT_2017 else MARKETING_MGMT_EXIT_EXAM
     elif dept == 'it':
         selected_questions = IT_EXIT_EXAM
     elif dept == 'cs':
@@ -321,7 +326,7 @@ async def handle_text_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
         share_msg = (
             "🎓 **Exit Exam መለማመጃ ቦት!**\n\n"
             "በ Computer Science፣ IT እና Marketing Management የተዘጋጁ የ Exit Exam ጥያቄዎችን ከነማብራሪያቸው ይለማመዱ።\n\n"
-            "👇 አሁኑኑ ለመጀመር ከታች ያለውን ሊንክ ይጫኑ፦\n"
+            "👇 아ሁኑኑ ለመጀመር ከታች ያለውን ሊንክ ይጫኑ፦\n"
             "https://t.me/ethio_exit_exam_quiz_bot"
         )
         await update.message.reply_text(
@@ -422,7 +427,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('stats', admin_stats))
     app.add_handler(CommandHandler('broadcast', broadcast))
     
-    # የዓመታት መምረጫ Callback Handler (ምሳሌ: mgmt_2017, cs_2018, it_m2016)
+    # የዓመታት መምረጫ Callback Handler (ትክክለኛው የ pattern አሰራር)
     app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern='^(cs|it|mgmt)_(2016|2017|2018|m2016|m2017|m2018)\$'))
     
     app.add_handler(CallbackQueryHandler(handle_answer, pattern='^ans\|'))
