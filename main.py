@@ -36,9 +36,10 @@ from database import (
     get_total_users_count,
 )
 
+# Database ማስመርመር
 init_db()
 
-# Flask Web Service ለ Render
+# 1. Render Web Service እንዲሰራ Flask መክፈት
 app_flask = Flask(__name__)
 
 @app_flask.route('/')
@@ -49,6 +50,7 @@ def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app_flask.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
 
+# 2. Logging ማስተካከል
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
@@ -73,6 +75,7 @@ def get_questions_for_user(context: ContextTypes.DEFAULT_TYPE):
         return context.user_data['questions_list']
     return CS_EXIT_EXAM_2018
 
+# 3. Handlers
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
     add_all_user(user_id)
@@ -92,7 +95,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         welcome_text, reply_markup=MAIN_KEYBOARD, parse_mode='Markdown'
     )
 
-# ዲፓርትመንት ሲመረጥ የዓመታት ምናሌ ማሳያ
+# ዲፓርትመንት ሲመረጥ የዓመታት ምናሌ (Sub-menu) ማሳያ
 async def show_years_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, dept_code: str):
     add_all_user(update.effective_user.id)
     context.user_data['department'] = dept_code
@@ -127,7 +130,7 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
     query = update.callback_query
     await query.answer()
     
-    data = query.data  # ምሳሌ: 'mgmt_2017' ወይም 'mgmt_m2016'
+    data = query.data  # ምሳሌ: 'mgmt_2017'
     try:
         dept, exam_type = data.split('_', 1)
     except ValueError:
@@ -165,8 +168,9 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
     context.user_data['questions_list'] = selected_questions
 
     exam_title = f"Exit Exam {exam_type}" if not exam_type.startswith('m') else f"Model Exam {exam_type[1:]}"
-    await query.edit_message_text(f"✅ **{dept.upper()} - {exam_title}** ተመርጧል! ፈተናው ይጀምራል...", parse_mode='Markdown')
+    await query.message.reply_text(f"✅ **{dept.upper()} - {exam_title}** ተመርጧል! ፈተናው ይጀምራል...", parse_mode='Markdown')
     
+    # የመጀመሪያውን ጥያቄ መላክ
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -213,19 +217,12 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         
         question_text = f"📚 **{dept_title}**\n**Question {q.get('id', index+1)} / {len(questions_list)}**\n\n{q['question']}"
 
-        if update.callback_query:
-            await context.bot.send_message(
-                chat_id=chat_id,
-                text=question_text,
-                reply_markup=reply_markup,
-                parse_mode='Markdown'
-            )
-        else:
-            await update.message.reply_text(
-                text=question_text,
-                reply_markup=reply_markup,
-                parse_mode='Markdown'
-            )
+        await context.bot.send_message(
+            chat_id=chat_id,
+            text=question_text,
+            reply_markup=reply_markup,
+            parse_mode='Markdown'
+        )
     except Exception as e:
         logging.error(f'Error in send_question: {e}')
 
@@ -405,6 +402,7 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
         parse_mode='Markdown'
     )
 
+# 4. Main Execution
 if __name__ == '__main__':
     flask_thread = threading.Thread(target=run_flask, daemon=True)
     flask_thread.start()
