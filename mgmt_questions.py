@@ -1,7 +1,7 @@
 # mgmt_questions.py
 
 # ==========================================
-# 1. MARKETING MANAGEMENT - 2016 (100 ጥያቄዎች)
+# MARKETING MANAGEMENT - 2016 (Exit Exam & Model)
 # ==========================================
 MGMT_2016 = [
     {
