@@ -18,9 +18,13 @@ from telegram.ext import (
     filters,
 )
 
-# ጥያቄዎችን እና Database መጫን
+# Biya kple Database dede me
 from cs_questions import CS_EXIT_EXAM_2018
-from mgmt_questions import MGMT_2017
+from mgmt_questions import (
+    MGMT_2016, MGMT_M2016,
+    MGMT_2017, MGMT_M2017,
+    MGMT_2018, MGMT_M2018
+)
 from it_questions import IT_EXIT_EXAM
 from database import (
     init_db,
@@ -34,7 +38,7 @@ from database import (
 
 init_db()
 
-# 1. Render Web Service እንዲሰራ Flask መክፈት
+# 1. Flask Web Service dede dɔ me na Render
 app_flask = Flask(__name__)
 
 @app_flask.route('/')
@@ -45,7 +49,7 @@ def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app_flask.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
 
-# 2. Logging ማስተካከል
+# 2. Logging dzraɖoɖo
 logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
     level=logging.INFO,
@@ -119,39 +123,52 @@ async def show_years_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, de
     
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
 
-# አዝራሮቹ ሲጫኑ ፍጹም እንዳይተነጠሉ የሚያደርግ ማስተካከያ
 async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
-    # ወዲያውኑ ለቴሌግራም Ack መላክ (የነጭ መስመር Loading እንዲጠፋ)
     try:
         await query.answer()
     except Exception:
         pass
     
     data = query.data
-    dept = 'cs'
-    if '_' in data:
-        dept = data.split('_')[0]
+    try:
+        dept, exam_type = data.split('_', 1)
+    except ValueError:
+        dept = 'mgmt'
+        exam_type = '2017'
 
     context.user_data['department'] = dept
     context.user_data['current_index'] = 0
 
+    selected_questions = []
+
     if dept == 'mgmt':
-        selected_questions = MGMT_2017
+        if exam_type == '2016':
+            selected_questions = MGMT_2016
+        elif exam_type == 'm2016':
+            selected_questions = MGMT_M2016
+        elif exam_type == '2017':
+            selected_questions = MGMT_2017
+        elif exam_type == 'm2017':
+            selected_questions = MGMT_M2017
+        elif exam_type == '2018':
+            selected_questions = MGMT_2018
+        elif exam_type == 'm2018':
+            selected_questions = MGMT_M2018
+        else:
+            selected_questions = MGMT_2017
     elif dept == 'it':
         selected_questions = IT_EXIT_EXAM
-    else:
+    elif dept == 'cs':
         selected_questions = CS_EXIT_EXAM_2018
 
     context.user_data['questions_list'] = selected_questions
 
-    # የድሮውን ሜኑ ማጥፋት
     try:
         await query.delete_message()
     except Exception:
         pass
 
-    # ጥያቄውን መላክ
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -400,9 +417,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('stats', admin_stats))
     app.add_handler(CommandHandler('broadcast', broadcast))
     
-    # ማንኛውንም የዓመት አዝራር ክሊክ እንዲያስተናግድ የተስተካከለ Regex Pattern
     app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern=r'^(cs|it|mgmt)_'))
-    
     app.add_handler(CallbackQueryHandler(handle_answer, pattern=r'^ans\|'))
     app.add_handler(CallbackQueryHandler(next_question, pattern=r'^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
