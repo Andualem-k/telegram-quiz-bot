@@ -452,7 +452,7 @@ MGMT_2016 = [
     },
     {
         'id': 59,
-        'question': "Selling a product or service at two or more prices, where the difference in prices is not based on differences in costs, is:",
+        'question': "Selling a product or service at two orramore prices, where the difference in prices is not based on differences in costs, is:",
         'options': ['A) Cost-plus pricing', 'B) Segmented pricing', 'C) Psychological pricing', 'D) Target return pricing'],
         'correct_answer': 'B) Segmented pricing',
         'explanation': "Segmented pricing charges different prices across buyer groups, locations, or times without cost variance."
@@ -752,3 +752,29 @@ MGMT_2016 = [
 ]
 
 
+# ==========================================
+# 2. MARKETING MANAGEMENT - 2017 (100 ጥያቄዎች)
+# ==========================================
+MGMT_2017 = [
+    {
+        'id': i,
+        'question': f"Sample 2017 Marketing Management Question {i}",
+        'options': ['A) Option A', 'B) Option B', 'C) Option C', 'D) Option D'],
+        'correct_answer': 'A) Option A',
+        'explanation': f"Explanation for question {i} of 2017."
+    } for i in range(1, 101)
+]
+
+
+# ==========================================
+# 3. MARKETING MANAGEMENT - 2018 (100 ጥያቄዎች)
+# ==========================================
+MGMT_2018 = [
+    {
+        'id': i,
+        'question': f"Sample 2018 Marketing Management Question {i}",
+        'options': ['A) Option A', 'B) Option B', 'C) Option C', 'D) Option D'],
+        'correct_answer': 'A) Option A',
+        'explanation': f"Explanation for question {i} of 2018."
+    } for i in range(1, 101)
+]
