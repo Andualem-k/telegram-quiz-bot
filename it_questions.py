@@ -877,7 +877,7 @@ IT_EXIT_EXAM = [
         'question': "In software design, what does the term 'Coupling' measure?",
         'options': [
             'A. The degree of interdependence between different software modules',
-            'B. The internal strength and focus of a single module's tasks',
+            'B. The internal strength and focus of a single module task',
             'C. The speed of execution of database queries',
             'D. The total lines of source code in a project',
             'E. Hardware resource utilization'
