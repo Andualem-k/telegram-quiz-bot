@@ -32,7 +32,6 @@ async def show_years_menu(update, context, dept_code):
     reply_markup = InlineKeyboardMarkup(keyboard)
     text = f"📚 **{dept_titles.get(dept_code, '')}**\n\nእባክዎ የሚፈልጉትን የፈተና ዓመት ወይም የሞዴል ፈተና ይምረጡ፡"
     
-    # ጽሑፉን ከቀድሞው መልእክት ጋር መቀየር (edit_message_text)
     if update.callback_query:
         query = update.callback_query
         await query.answer()
@@ -40,7 +39,7 @@ async def show_years_menu(update, context, dept_code):
     else:
         await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
 
-# 2. ተማሪው ዓመቱን ሲመርጥ ጥያቄውን የሚጭን
+# 2. ተማሪው ዓመቱን ሲመርጥ ጥያቄውን የሚጭን እና ወደ መጀመሪያው ጥያቄ የሚያልፍ
 async def handle_exam_selection(update, context):
     query = update.callback_query
     await query.answer()
@@ -53,7 +52,6 @@ async def handle_exam_selection(update, context):
     
     selected_questions = []
     
-    # ለ Marketing Management ዓመታት እና ሞዴሎች
     if dept == 'mgmt':
         if exam_type == '2016':
             selected_questions = MGMT_2016
@@ -67,13 +65,15 @@ async def handle_exam_selection(update, context):
             selected_questions = MGMT_2018
         elif exam_type == 'm2018':
             selected_questions = MGMT_M2018
+        else:
+            selected_questions = MGMT_2017
     elif dept == 'it':
         selected_questions = IT_EXIT_EXAM
     elif dept == 'cs':
         selected_questions = CS_EXIT_EXAM_2018
         
     if not selected_questions:
-        await query.answer("⚠️ የዚህ ዓመት ጥያቄዎች በቅርቡ ይጫናሉ! እባክዎ ሌላ ይምረጡ።", show_alert=True)
+        await query.edit_message_text("⚠️ የዚህ ዓመት ጥያቄዎች በቅርቡ ይጫናሉ! እባክዎ ሌላ ይምረጡ።", parse_mode='Markdown')
         return
         
     context.user_data['department'] = dept
@@ -82,3 +82,7 @@ async def handle_exam_selection(update, context):
     
     exam_title = f"Exit Exam {exam_type}" if not exam_type.startswith('m') else f"Model Exam {exam_type[1:]}"
     await query.edit_message_text(f"✅ **{dept.upper()} - {exam_title}** ተመርጧል! ፈተናው ይጀምራል...", parse_mode='Markdown')
+    
+    # ከ main.py ውስጥ ያለውን send_question መጥራት እንዲቻል ወይም በቀጥታ ማሳየት
+    from main import send_question
+    await send_question(update, context)
