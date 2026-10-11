@@ -20,11 +20,7 @@ from telegram.ext import (
 
 # ጥያቄዎችን እና Database መጫን
 from cs_questions import CS_EXIT_EXAM_2018
-from mgmt_questions import (
-    MGMT_2016, MGMT_M2016,
-    MGMT_2017, MGMT_M2017,
-    MGMT_2018, MGMT_M2018
-)
+from mgmt_questions import MGMT_2017
 from it_questions import IT_EXIT_EXAM
 from database import (
     init_db,
@@ -124,6 +120,7 @@ async def show_years_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, de
     
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
 
+# ተማሪው የትኛውንም ዓመት (2016, 2017, 2018) ሲጫን የሚሰራው
 async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
@@ -137,31 +134,15 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
     context.user_data['department'] = dept
     context.user_data['current_index'] = 0
 
-    selected_questions = []
-
+    # የትኛውም የ Marketing ዓመት ቢመረጥ ጥያቄዎቹን ከ MGMT_2017 መውሰድ
     if dept == 'mgmt':
-        if exam_type == '2016':
-            selected_questions = MGMT_2016
-        elif exam_type == 'm2016':
-            selected_questions = MGMT_M2016
-        elif exam_type == '2017':
-            selected_questions = MGMT_2017
-        elif exam_type == 'm2017':
-            selected_questions = MGMT_M2017
-        elif exam_type == '2018':
-            selected_questions = MGMT_2018
-        elif exam_type == 'm2018':
-            selected_questions = MGMT_M2018
-        else:
-            selected_questions = MGMT_2017
+        selected_questions = MGMT_2017
     elif dept == 'it':
         selected_questions = IT_EXIT_EXAM
     elif dept == 'cs':
         selected_questions = CS_EXIT_EXAM_2018
-
-    if not selected_questions:
-        await query.edit_message_text("⚠️ የዚህ ዓመት ጥያቄዎች በቅርቡ ይጫናሉ! እባክዎ ሌላ ይምረጡ።", parse_mode='Markdown')
-        return
+    else:
+        selected_questions = MGMT_2017
 
     context.user_data['questions_list'] = selected_questions
 
@@ -170,6 +151,7 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
     except Exception:
         pass
 
+    # ጥያቄውን በቀጥታ መላክ
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -204,7 +186,6 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
         keyboard = []
         for opt_idx, option in enumerate(q['options']):
-            # አማራጩ ቀድሞ 'A.' ከያዘ ድጋሚ ላለመጨመር ማስተካከያ
             button_label = str(option)
             keyboard.append([InlineKeyboardButton(button_label, callback_data=f'ans|{index}|{opt_idx}')])
 
