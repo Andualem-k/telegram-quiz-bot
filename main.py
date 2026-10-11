@@ -95,7 +95,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         welcome_text, reply_markup=MAIN_KEYBOARD, parse_mode='Markdown'
     )
 
-# ዲፓርትመንት ሲመረጥ የዓመታት ምናሌ (Sub-menu) ማሳያ
+# ዲፓርትመንት ሲመረጥ የዓመታት ምናሌ ማሳያ
 async def show_years_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, dept_code: str):
     add_all_user(update.effective_user.id)
     context.user_data['department'] = dept_code
@@ -167,10 +167,13 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
     context.user_data['questions_list'] = selected_questions
 
-    exam_title = f"Exit Exam {exam_type}" if not exam_type.startswith('m') else f"Model Exam {exam_type[1:]}"
-    await query.message.reply_text(f"✅ **{dept.upper()} - {exam_title}** ተመርጧል! ፈተናው ይጀምራል...", parse_mode='Markdown')
-    
-    # የመጀመሪያውን ጥያቄ መላክ
+    # የድሮውን ምናሌ መልዕክት ማፅዳት
+    try:
+        await query.delete_message()
+    except Exception:
+        pass
+
+    # ጥያቄውን መላክ
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
