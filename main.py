@@ -432,7 +432,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('broadcast', broadcast))
     
     # የዓመታት እና ሞዴል መምረጫ Callback Handler
-   app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern='^(cs|it|mgmt)_(2016|2017|2018|m2016|m2017|m2018)$'))
+    app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern='^(cs|it|mgmt)_(2016|2017|2018|m2016|m2017|m2018)\$'))
     
     app.add_handler(CallbackQueryHandler(handle_answer, pattern='^ans\|'))
     app.add_handler(CallbackQueryHandler(next_question, pattern='^next\|'))
@@ -440,4 +440,3 @@ if __name__ == '__main__':
 
     print('Bot started successfully with Year Sub-menus support...')
     app.run_polling()
-
