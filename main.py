@@ -95,7 +95,6 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         welcome_text, reply_markup=MAIN_KEYBOARD, parse_mode='Markdown'
     )
 
-# ዲፓርትመንት ሲመረጥ የዓመታት ምናሌ ማሳያ
 async def show_years_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, dept_code: str):
     add_all_user(update.effective_user.id)
     context.user_data['department'] = dept_code
@@ -125,12 +124,11 @@ async def show_years_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, de
     
     await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
 
-# ተማሪው ዓመቱን ወይም ሞዴሉን ሲመርጥ የሚሰራ
 async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TYPE):
     query = update.callback_query
     await query.answer()
     
-    data = query.data  # ምሳሌ: 'mgmt_2017'
+    data = query.data
     try:
         dept, exam_type = data.split('_', 1)
     except ValueError:
@@ -167,13 +165,11 @@ async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TY
 
     context.user_data['questions_list'] = selected_questions
 
-    # የድሮውን ምናሌ መልዕክት ማፅዳት
     try:
         await query.delete_message()
     except Exception:
         pass
 
-    # ጥያቄውን መላክ
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -205,12 +201,11 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         q = questions_list[index]
-        letters = ['A', 'B', 'C', 'D', 'E', 'F']
 
         keyboard = []
         for opt_idx, option in enumerate(q['options']):
-            letter_prefix = letters[opt_idx] if opt_idx < len(letters) else f'{opt_idx+1}'
-            button_label = f'{letter_prefix}. {option}'
+            # አማራጩ ቀድሞ 'A.' ከያዘ ድጋሚ ላለመጨመር ማስተካከያ
+            button_label = str(option)
             keyboard.append([InlineKeyboardButton(button_label, callback_data=f'ans|{index}|{opt_idx}')])
 
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -243,13 +238,12 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
         return
 
     q = questions_list[q_index]
-    letters = ['A', 'B', 'C', 'D', 'E', 'F']
-    letter_prefix = letters[opt_idx] if opt_idx < len(letters) else f'{opt_idx+1}'
-
     user_choice = q['options'][opt_idx]
-    user_choice_formatted = f'{letter_prefix}. {user_choice}'
 
-    if str(user_choice).strip() == str(q['correct_answer']).strip():
+    correct_ans = str(q['correct_answer']).strip()
+    user_ans = str(user_choice).strip()
+
+    if user_ans == correct_ans or user_ans.startswith(correct_ans[:3]):
         result_text = (
             f'✅ **Correct Answer!**\n\n'
             f"🎯 **Answer:** {q['correct_answer']}\n"
@@ -258,7 +252,7 @@ async def handle_answer(update: Update, context: ContextTypes.DEFAULT_TYPE):
     else:
         result_text = (
             f'❌ **Incorrect Answer!**\n\n'
-            f'Your Choice: {user_choice_formatted}\n'
+            f'Your Choice: {user_choice}\n'
             f"🎯 **Correct Answer:** {q['correct_answer']}\n\n"
             f"💡 **Explanation:** {q['explanation']}"
         )
@@ -419,9 +413,7 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('stats', admin_stats))
     app.add_handler(CommandHandler('broadcast', broadcast))
     
-    # የዓመታት እና ሞዴል ምርጫ Handler
     app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern=r'^(cs|it|mgmt)_(2016|2017|2018|m2016|m2017|m2018)\$'))
-    
     app.add_handler(CallbackQueryHandler(handle_answer, pattern=r'^ans\|'))
     app.add_handler(CallbackQueryHandler(next_question, pattern=r'^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
