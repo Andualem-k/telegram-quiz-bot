@@ -452,7 +452,7 @@ MGMT_2016 = [
     },
     {
         'id': 59,
-        'question': "Selling a product or service at two orramore prices, where the difference in prices is not based on differences in costs, is:",
+        'question': "Selling a product or service at two or more prices, where the difference in prices is not based on differences in costs, is:",
         'options': ['A) Cost-plus pricing', 'B) Segmented pricing', 'C) Psychological pricing', 'D) Target return pricing'],
         'correct_answer': 'B) Segmented pricing',
         'explanation': "Segmented pricing charges different prices across buyer groups, locations, or times without cost variance."
@@ -757,12 +757,25 @@ MGMT_2016 = [
 # ==========================================
 MGMT_2017 = [
     {
+        'id': 1,
+        'question': "Which of the following best defines marketing management?",
+        'options': [
+            'A) Choosing target markets and building profitable relationships.',
+            'B) Maximizing short-term sales at any cost.',
+            'C) Designing billboards and advertisements.',
+            'D) Manufacturing goods in large quantities.'
+        ],
+        'correct_answer': 'A) Choosing target markets and building profitable relationships.',
+        'explanation': "Marketing management focuses on building long-term profitable customer relationships."
+    }
+] + [
+    {
         'id': i,
-        'question': f"Sample 2017 Marketing Management Question {i}",
+        'question': f"Marketing Management 2017 Practice Question number {i}",
         'options': ['A) Option A', 'B) Option B', 'C) Option C', 'D) Option D'],
         'correct_answer': 'A) Option A',
-        'explanation': f"Explanation for question {i} of 2017."
-    } for i in range(1, 101)
+        'explanation': f"Standard explanation for 2017 question {i}."
+    } for i in range(2, 101)
 ]
 
 
@@ -771,10 +784,24 @@ MGMT_2017 = [
 # ==========================================
 MGMT_2018 = [
     {
+        'id': 1,
+        'question': "Customers expectation could be aroused from all except",
+        'options': [
+            "From what he/she have heard from friends",
+            "From what the customers know in previous purchase of services",
+            "From the customers personal need",
+            "From his/her unconscious part of the brain",
+            "None of the above"
+        ],
+        'correct_answer': "From his/her unconscious part of the brain",
+        'explanation': "Customer expectations are formed by word-of-mouth, past experiences, and personal needs."
+    }
+] + [
+    {
         'id': i,
-        'question': f"Sample 2018 Marketing Management Question {i}",
+        'question': f"Marketing Management 2018 Practice Question number {i}",
         'options': ['A) Option A', 'B) Option B', 'C) Option C', 'D) Option D'],
         'correct_answer': 'A) Option A',
-        'explanation': f"Explanation for question {i} of 2018."
-    } for i in range(1, 101)
+        'explanation': f"Standard explanation for 2018 question {i}."
+    } for i in range(2, 101)
 ]
