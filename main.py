@@ -21,6 +21,11 @@ from telegram.ext import (
 # ጥያቄዎችን እና Database መጫን
 from cs_questions import CS_EXIT_EXAM_2018
 from mgmt_questions import MARKETING_MGMT_EXIT_EXAM
+try:
+    from mgmt_questions import MGMT_2017
+except ImportError:
+    MGMT_2017 = []
+
 from it_questions import IT_EXIT_EXAM
 from database import (
     init_db,
@@ -66,8 +71,11 @@ MAIN_KEYBOARD = ReplyKeyboardMarkup(
     resize_keyboard=True,
 )
 
-# የተመረጠውን ዲፓርትመንት ጥያቄዎች ማቅረብ
+# የተመረጠውን ዲፓርትመንት እና ዓመት ጥያቄዎች ማቅረብ
 def get_questions_for_user(context: ContextTypes.DEFAULT_TYPE):
+    if 'questions_list' in context.user_data and context.user_data['questions_list']:
+        return context.user_data['questions_list']
+        
     dept = context.user_data.get('department', 'cs')
     if dept == 'mgmt':
         return MARKETING_MGMT_EXIT_EXAM
@@ -95,25 +103,73 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         welcome_text, reply_markup=MAIN_KEYBOARD, parse_mode='Markdown'
     )
 
-async def start_quiz_cs(update: Update, context: ContextTypes.DEFAULT_TYPE):
+# ዲፓርትመንት ሲመረጥ የዓመታት ምናሌ (Sub-menu) ማሳያ
+async def show_years_menu(update: Update, context: ContextTypes.DEFAULT_TYPE, dept_code: str):
     add_all_user(update.effective_user.id)
-    context.user_data['department'] = 'cs'
-    context.user_data['current_index'] = 0
-    await update.message.reply_text("💻 Starting **Computer Science** Exit Exam Quiz...", parse_mode='Markdown')
-    await send_question(update, context)
+    context.user_data['department'] = dept_code
+    
+    dept_titles = {
+        'cs': 'Computer Science (CS)',
+        'it': 'Information Technology (IT)',
+        'mgmt': 'Marketing Management'
+    }
+    
+    keyboard = [
+        [
+            InlineKeyboardButton("📄 Exit Exam 2016", callback_data=f"{dept_code}_2016"),
+            InlineKeyboardButton("📝 Model 2016", callback_data=f"{dept_code}_m2016")
+        ],
+        [
+            InlineKeyboardButton("📄 Exit Exam 2017", callback_data=f"{dept_code}_2017"),
+            InlineKeyboardButton("📝 Model 2017", callback_data=f"{dept_code}_m2017")
+        ],
+        [
+            InlineKeyboardButton("📄 Exit Exam 2018", callback_data=f"{dept_code}_2018"),
+            InlineKeyboardButton("📝 Model 2018", callback_data=f"{dept_code}_m2018")
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    text = f"📚 **{dept_titles.get(dept_code, '')}**\n\nእባክዎ የሚፈልጉትን የፈተና ዓመት ወይም የሞዴል ፈተና ይምረጡ፡"
+    
+    await update.message.reply_text(text, reply_markup=reply_markup, parse_mode='Markdown')
 
-async def start_quiz_it(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    add_all_user(update.effective_user.id)
-    context.user_data['department'] = 'it'
-    context.user_data['current_index'] = 0
-    await update.message.reply_text("🌐 Starting **Information Technology (IT)** Exit Exam Quiz...", parse_mode='Markdown')
-    await send_question(update, context)
+# ተማሪው ዓመቱን ወይም ሞዴሉን ሲመርጥ የሚሰራ
+async def handle_exam_selection(update: Update, context: ContextTypes.DEFAULT_TYPE):
+    query = update.callback_query
+    await query.answer()
+    
+    data = query.data  # ምሳሌ: 'mgmt_2017' ወይም 'cs_2018'
+    try:
+        dept, exam_type = data.split('_', 1)
+    except ValueError:
+        return
 
-async def start_quiz_mgmt(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    add_all_user(update.effective_user.id)
-    context.user_data['department'] = 'mgmt'
+    context.user_data['department'] = dept
     context.user_data['current_index'] = 0
-    await update.message.reply_text("📊 Starting **Marketing Management** Exit Exam Quiz...", parse_mode='Markdown')
+
+    selected_questions = []
+
+    # የጥያቄ ዝርዝሮችን መምረጥ
+    if dept == 'mgmt':
+        if exam_type == '2017' and MGMT_2017:
+            selected_questions = MGMT_2017
+        else:
+            selected_questions = MARKETING_MGMT_EXIT_EXAM # ነባሩ ድጋፍ
+    elif dept == 'it':
+        selected_questions = IT_EXIT_EXAM
+    elif dept == 'cs':
+        selected_questions = CS_EXIT_EXAM_2018
+
+    if not selected_questions:
+        await query.edit_message_text("⚠️ የዚህ ዓመት ጥያቄዎች በቅርቡ ይጫናሉ! እባክዎ ሌላ ይምረጡ።", parse_mode='Markdown')
+        return
+
+    context.user_data['questions_list'] = selected_questions
+
+    exam_title = f"{exam_type.upper()}" if not exam_type.startswith('m') else f"Model {exam_type[1:]}"
+    await query.edit_message_text(f"✅ **{dept.upper()} - {exam_title}** ተመርጧል! ፈተናው ይጀምራል...", parse_mode='Markdown')
+    
+    # የመጀመሪያውን ጥያቄ መላክ
     await send_question(update, context)
 
 async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -140,7 +196,7 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
             return
 
         if index >= len(questions_list):
-            text = '🎉 **Congratulations! You have completed all questions in this department.**'
+            text = '🎉 **Congratulations! You have completed all questions in this department/year.**'
             await context.bot.send_message(chat_id=chat_id, text=text, parse_mode='Markdown')
             return
 
@@ -158,14 +214,22 @@ async def send_question(update: Update, context: ContextTypes.DEFAULT_TYPE):
         dept_code = context.user_data.get('department')
         dept_title = "Information Technology" if dept_code == 'it' else ("Marketing Management" if dept_code == 'mgmt' else "Computer Science")
         
-        question_text = f"📚 **{dept_title}**\n**Question {q['id']} / {len(questions_list)}**\n\n{q['question']}"
+        question_text = f"📚 **{dept_title}**\n**Question {q.get('id', index+1)} / {len(questions_list)}**\n\n{q['question']}"
 
-        await context.bot.send_message(
-            chat_id=chat_id,
-            text=question_text,
-            reply_markup=reply_markup,
-            parse_mode='Markdown'
-        )
+        # update.callback_query ካለ edit እናደርጋለን፣ ካለፈም send_message
+        if update.callback_query:
+            await context.bot.send_message(
+                chat_id=chat_id,
+                text=question_text,
+                reply_markup=reply_markup,
+                parse_mode='Markdown'
+            )
+        else:
+            await update.message.reply_text(
+                text=question_text,
+                reply_markup=reply_markup,
+                parse_mode='Markdown'
+            )
     except Exception as e:
         logging.error(f'Error in send_question: {e}')
 
@@ -228,11 +292,11 @@ async def handle_text_buttons(update: Update, context: ContextTypes.DEFAULT_TYPE
     if text in ['🚀 Start', '⚡ Main Menu']:
         await start(update, context)
     elif text in ['💻 CS Exam', '💻 Computer Science']:
-        await start_quiz_cs(update, context)
+        await show_years_menu(update, context, 'cs')
     elif text in ['🌐 IT Exam', '🌐 Information Technology']:
-        await start_quiz_it(update, context)
+        await show_years_menu(update, context, 'it')
     elif text in ['📊 Marketing Mgmt', '📊 Marketing Management']:
-        await start_quiz_mgmt(update, context)
+        await show_years_menu(update, context, 'mgmt')
     elif text in ['💳 Payment / Upgrade', '💳 Kfya / Payment']:
         status = "✅ **Active Subscriber**" if is_user_paid(user_id) else "❌ **Free Trial User**"
         payment_info = (
@@ -357,9 +421,13 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('approve', approve_user))
     app.add_handler(CommandHandler('stats', admin_stats))
     app.add_handler(CommandHandler('broadcast', broadcast))
+    
+    # የዓመታት መምረጫ Callback Handler (ምሳሌ: mgmt_2017, cs_2018, it_m2016)
+    app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern='^(cs|it|mgmt)_(2016|2017|2018|m2016|m2017|m2018)\$'))
+    
     app.add_handler(CallbackQueryHandler(handle_answer, pattern='^ans\|'))
     app.add_handler(CallbackQueryHandler(next_question, pattern='^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
 
-    print('Bot started successfully with 3 Department support...')
+    print('Bot started successfully with Year Sub-menus support...')
     app.run_polling()
