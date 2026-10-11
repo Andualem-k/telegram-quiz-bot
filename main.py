@@ -48,8 +48,8 @@ def home():
     return "Quiz Bot is alive and running!", 200
 
 def run_flask():
-    port = int(os.environ.get("PORT", 8080))
-    app_flask.run(host="0.0.0.0", port=port)
+    port = int(os.environ.get("PORT", 10000))
+    app_flask.run(host="0.0.0.0", port=port, debug=False, use_reloader=False)
 
 # 2. Logging ማስተካከል
 logging.basicConfig(
@@ -420,7 +420,8 @@ async def broadcast(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
 # 4. Main Execution
 if __name__ == '__main__':
-    threading.Thread(target=run_flask, daemon=True).start()
+    flask_thread = threading.Thread(target=run_flask, daemon=True)
+    flask_thread.start()
 
     BOT_TOKEN = os.environ.get("BOT_TOKEN", "8809032194:AAGpO0DPvCW87RMj-BulJempz8dEMwciJxE")
 
@@ -432,10 +433,10 @@ if __name__ == '__main__':
     app.add_handler(CommandHandler('broadcast', broadcast))
     
     # የዓመታት እና ሞዴል መምረጫ Callback Handler
-    app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern='^(cs|it|mgmt)_(2016|2017|2018|m2016|m2017|m2018)\$'))
+    app.add_handler(CallbackQueryHandler(handle_exam_selection, pattern=r'^(cs|it|mgmt)_(2016|2017|2018|m2016|m2017|m2018)\$'))
     
-    app.add_handler(CallbackQueryHandler(handle_answer, pattern='^ans\|'))
-    app.add_handler(CallbackQueryHandler(next_question, pattern='^next\|'))
+    app.add_handler(CallbackQueryHandler(handle_answer, pattern=r'^ans\|'))
+    app.add_handler(CallbackQueryHandler(next_question, pattern=r'^next\|'))
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text_buttons))
 
     print('Bot started successfully with Year Sub-menus support...')
